@@ -122,14 +122,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 {mode === 'login' ? (
                     <p>
                         Pas de compte ?{' '}
-                        <a href="/signup" className="text-blue-600 hover:text-blue-800">
+                        <a href="/auth/signup" className="text-blue-600 hover:text-blue-800">
                             S'inscrire
                         </a>
                     </p>
                 ) : (
                     <p>
                         Déjà un compte ?{' '}
-                        <a href="/login" className="text-blue-600 hover:text-blue-800">
+                        <a href="/auth/login" className="text-blue-600 hover:text-blue-800">
                             Se connecter
                         </a>
                     </p>

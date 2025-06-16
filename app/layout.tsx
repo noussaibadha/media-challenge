@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'App Auth',
-  description: 'Application avec authentification Supabase',
+  title: '',
+  description: 'on est la',
 }
 
 export default function RootLayout({
