@@ -71,7 +71,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
         alert('Vérifiez votre email pour confirmer votre compte!')
       }
     } catch (error: any) {
-      setError(error.message)
+      setError("email déjà utilisé")
+    //   setError(error.message)
     } finally {
       setLoading(false)
     }
