@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 
 export async function getUser() {
   const supabase = createClient()
+  console.log(supabase); // Devrait afficher un objet avec la propriété "auth"
+  console.log(typeof supabase.auth); // Devrait afficher "object" ou "function"
   const { data: { user }, error } = await supabase.auth.getUser()
   
   if (error || !user) {
