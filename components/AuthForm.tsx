@@ -25,12 +25,21 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       if (mode === 'login') {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
 
         if (error) throw error
+
+        if (data?.user) {
+          localStorage.setItem('user', JSON.stringify(data.user))
+          }
+
+        if (data?.session) {
+          localStorage.setItem('token', data.session.access_token)
+          }
+
 
         router.push('/dashboard')
         router.refresh()
