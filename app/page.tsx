@@ -10,6 +10,46 @@ const supabase = createClient(
 export default function HomePage() {
   const [articles, setArticles] = useState<any[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Tous')
+  const [searchTerm, setSearchTerm] = useState('')
+
+
+  const handleLike = async (articleId: string) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
+
+    if (!userId) {
+      alert("Tu dois être connecté pour liker.")
+      return
+    }
+
+    // Évite les doublons (like déjà existant)
+    const { data: existingLike } = await supabase
+      .from('likes')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('article_id', articleId)
+      .single()
+
+    if (existingLike) {
+      alert('Tu as déjà liké cet article.')
+      return
+    }
+
+    const { error } = await supabase.from('likes').insert([
+      {
+        user_id: userId,
+        article_id: articleId,
+      },
+    ])
+
+    if (error) {
+      console.error(error)
+      alert('Erreur lors du like.')
+    } else {
+      alert('Article liké !')
+    }
+  }
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,10 +65,17 @@ export default function HomePage() {
   }, [])
 
   // Filtrer les articles selon la catégorie sélectionnée
-  const filteredArticles =
-    selectedCategory === 'Tous'
-      ? articles
-      : articles.filter(article => article.categorie === selectedCategory)
+  const filteredArticles = articles
+  .filter(article => selectedCategory === 'Tous' || article.categorie === selectedCategory)
+  .filter(article => {
+    const search = searchTerm.toLowerCase()
+    return (
+      article.title?.toLowerCase().includes(search) ||
+      article.adress?.toLowerCase().includes(search) ||
+      article.categorie?.toLowerCase().includes(search)
+    )
+  })
+
 
   // Liste des catégories (vous pouvez la rendre dynamique si besoin)
   const categories = ['Tous', 'Rock', 'Rap', 'Electro', 'Jazz']
@@ -44,8 +91,11 @@ export default function HomePage() {
           <input
             type="text"
             placeholder="Rechercher un spot..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-gray-800/80 text-white placeholder-gray-400 px-4 py-3.5 rounded-2xl border-0 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
+
           <svg
             className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
             fill="none"
@@ -103,7 +153,10 @@ export default function HomePage() {
                 {/* Title and Heart */}
                 <div className="flex items-start justify-between mb-4">
                   <h2 className="text-white text-2xl font-bold">{article.title || 'Le Bataclan'}</h2>
-                  <button className="ml-4 mt-1">
+                  <button
+                    onClick={() => handleLike(article.id)}
+                    className="ml-4 mt-1"
+                  >
                     <svg
                       className="w-6 h-6 text-gray-400 hover:text-red-400"
                       fill="none"
@@ -118,6 +171,7 @@ export default function HomePage() {
                       />
                     </svg>
                   </button>
+
                 </div>
 
                 {/* Genre Tags */}
