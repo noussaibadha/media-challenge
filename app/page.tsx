@@ -12,10 +12,24 @@ export default function HomePage() {
   const [articles, setArticles] = useState<any[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchTerm, setSearchTerm] = useState('')
+  const [user, setUser] = useState<any | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isConnected, setIsConnected] = useState(false);
 
-
-  const handleLike = async (articleId: string) => {
-    const { data: { user } } = await supabase.auth.getUser()
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsConnected(true);
+        console.log("✅ Utilisateur connecté :", session.user.email);
+      } else {
+        setIsConnected(false);
+        console.log("🚫 Aucun utilisateur connecté");
+      }
+    };
+    checkSession();
+  });
+    const handleLike = async (articleId: string) => {
     const userId = user?.id
 
     if (!userId) {
@@ -23,13 +37,12 @@ export default function HomePage() {
       return
     }
 
-    // Évite les doublons (like déjà existant)
     const { data: existingLike } = await supabase
       .from('likes')
       .select('*')
       .eq('user_id', userId)
       .eq('article_id', articleId)
-      .single()
+      .maybeSingle()
 
     if (existingLike) {
       alert('Tu as déjà liké cet article.')
