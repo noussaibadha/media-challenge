@@ -46,22 +46,21 @@ export default function AuthForm({ mode }: AuthFormProps) {
           },
         })
 
+        // Si une erreur survient (par exemple email déjà utilisé), on lève l'erreur et on n'insère pas dans users
         if (error) throw error
 
-        // Vérifie que l'utilisateur existe avant d'insérer dans 'users'
+        // Vérifie que l'utilisateur a bien été créé
         if (!data.user?.id || !data.user?.email) {
           throw new Error("Erreur lors de la création de l'utilisateur")
         }
-        console.log(data)
 
-        // Insertion dans la table 'users'
+        // Insertion dans la table 'users' (clé étrangère vers auth.users)
         const { error: insertError } = await supabase
           .from('users')
           .insert([
             {
               id: data.user.id,
               name: lastName,
-            //   email: lastName,
               visibility: 0,
             },
           ])
@@ -71,8 +70,19 @@ export default function AuthForm({ mode }: AuthFormProps) {
         alert('Vérifiez votre email pour confirmer votre compte!')
       }
     } catch (error: any) {
-      setError("email déjà utilisé")
-    //   setError(error.message)
+      // Gestion spécifique de l'email déjà utilisé
+      const msg = error?.message?.toLowerCase() || ""
+      if (
+        msg.includes('already registered') ||
+        msg.includes('user already registered') ||
+        (msg.includes('email') && msg.includes('exists')) ||
+        msg.includes('duplicate key') ||
+        msg.includes('unique constraint')
+        ) {
+        setError("Cet email est déjà utilisé.")
+      } else {
+        setError(error.message || "Une erreur est survenue.")
+      }
     } finally {
       setLoading(false)
     }
