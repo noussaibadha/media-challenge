@@ -55,8 +55,6 @@ export default function ResponsiveNavbar() {
           ))}
         </div>
       </nav>
-
-      {/* Padding pour éviter que le contenu soit caché */}
       {/* <div className="pb-16 md:pt-16"></div> */}
     </>
   );

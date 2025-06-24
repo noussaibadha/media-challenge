@@ -27,13 +27,6 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
-  // Historique fictif, tu peux le remplacer par un fetch dynamique
-  const historique = [
-    { heure: 'Hier 23h30', lieu: 'Montmartre', resultats: 5 },
-    { heure: 'Hier 23h30', lieu: 'Montmartre', resultats: 5 },
-    { heure: 'Hier 23h30', lieu: 'Montmartre', resultats: 5 },
-  ]
-
   // Passe les infos nécessaires au composant client
   return (
     <ProfileClient
@@ -45,7 +38,6 @@ export default async function ProfilePage() {
         followers: 8,
         suivis: 2,
       }}
-      historique={historique}
     />
   )
 }

@@ -19,21 +19,21 @@ export default function ProfileClient({
   const [geo, setGeo] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
 
-  // --- DARK MODE ---
+  // --- DARK MODE : récupération au montage ---
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode')
+    if (savedDarkMode) setDarkMode(JSON.parse(savedDarkMode))
+  }, [])
+
+  // --- DARK MODE : applique la classe et sauvegarde ---
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
     } else {
       document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
     }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
   }, [darkMode])
-
-  useEffect(() => {
-    const theme = localStorage.getItem('theme')
-    if (theme === 'dark') setDarkMode(true)
-  }, [])
 
   // --- NOTIF & GEO : charger depuis localStorage au montage ---
   useEffect(() => {
@@ -47,13 +47,12 @@ export default function ProfileClient({
   useEffect(() => {
     localStorage.setItem('notif', notif.toString())
   }, [notif])
-
   useEffect(() => {
     localStorage.setItem('geo', geo.toString())
   }, [geo])
 
   return (
-    <div className="min-h-screen bg-white transition-colors">
+    <div className="min-h-screen transition-colors bg-[#F1F1F1] dark:bg-[#242424]">
       {/* Header avec fond dégradé */}
       <div className="bg-gradient-to-br from-purple-600 to-blue-400 pb-8 rounded-b-3xl">
         <div className="flex flex-col items-center pt-8">
@@ -86,13 +85,13 @@ export default function ProfileClient({
 
       {/* Paramètres */}
       <div className="px-4 mt-8 pb-20">
-        <h2 className="text-lg font-semibold mb-2 text-black">Paramètre</h2>
+        <h2 className="text-lg font-semibold mb-2 text-black dark:text-white">Paramètre</h2>
         <div className="space-y-6">
           {/* Notifications */}
-          <div className="flex items-center justify-between rounded-xl bg-[#F1F1F1] px-4 py-3 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-[#30313A] px-4 py-3 shadow-sm border border-gray-200 dark:border-[#353646]">
             <div>
-              <div className="font-medium text-black">Notifications</div>
-              <div className="text-xs text-gray-700 max-w-xs">
+              <div className="font-medium text-black dark:text-white">Notifications</div>
+              <div className="text-xs text-gray-700 dark:text-gray-300 max-w-xs">
                 Active les notifications pour recevoir des alertes sur les événements et des recommandations.
               </div>
             </div>
@@ -103,15 +102,15 @@ export default function ProfileClient({
                 checked={notif}
                 onChange={() => setNotif(!notif)}
               />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black transition-colors duration-200"></div>
-              <div className={`absolute left-0 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ${notif ? 'translate-x-5' : ''}`}></div>
+              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-colors duration-200"></div>
+              <div className={`absolute left-0 w-5 h-5 bg-white dark:bg-[#242424] rounded-full shadow transform transition-transform duration-200 ${notif ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
           {/* Géolocalisation */}
-          <div className="flex items-center justify-between rounded-xl bg-[#F1F1F1] px-4 py-3 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-[#30313A] px-4 py-3 shadow-sm border border-gray-200 dark:border-[#353646]">
             <div>
-              <div className="font-medium text-black">Géolocalisation</div>
-              <div className="text-xs text-gray-700 max-w-xs">
+              <div className="font-medium text-black dark:text-white">Géolocalisation</div>
+              <div className="text-xs text-gray-700 dark:text-gray-300 max-w-xs">
                 Autorise l’application à accéder à ta position pour améliorer la pertinence.
               </div>
             </div>
@@ -122,15 +121,15 @@ export default function ProfileClient({
                 checked={geo}
                 onChange={() => setGeo(!geo)}
               />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black transition-colors duration-200"></div>
-              <div className={`absolute left-0 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ${geo ? 'translate-x-5' : ''}`}></div>
+              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-colors duration-200"></div>
+              <div className={`absolute left-0 w-5 h-5 bg-white dark:bg-[#242424] rounded-full shadow transform transition-transform duration-200 ${geo ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
           {/* Dark mode */}
-          <div className="flex items-center justify-between rounded-xl bg-[#F1F1F1] px-4 py-3 shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-[#30313A] px-4 py-3 shadow-sm border border-gray-200 dark:border-[#353646]">
             <div>
-              <div className="font-medium text-black">Mode sombre</div>
-              <div className="text-xs text-gray-700 max-w-xs">
+              <div className="font-medium text-black dark:text-white">Mode sombre</div>
+              <div className="text-xs text-gray-700 dark:text-gray-300 max-w-xs">
                 Active le mode sombre pour reposer tes yeux la nuit.
               </div>
             </div>
@@ -141,8 +140,8 @@ export default function ProfileClient({
                 checked={darkMode}
                 onChange={() => setDarkMode(!darkMode)}
               />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black transition-colors duration-200"></div>
-              <div className={`absolute left-0 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-200 ${darkMode ? 'translate-x-5' : ''}`}></div>
+              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-colors duration-200"></div>
+              <div className={`absolute left-0 w-5 h-5 bg-white dark:bg-[#242424] rounded-full shadow transform transition-transform duration-200 ${darkMode ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
         </div>
