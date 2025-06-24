@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function getUser() {
-  const supabase = createClient()
+  const supabase = await createClient()
   console.log(supabase); // Devrait afficher un objet avec la propriété "auth"
   console.log(typeof supabase.auth); // Devrait afficher "object" ou "function"
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -25,7 +25,7 @@ export async function requireAuth() {
 }
 
 export async function getSession() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { session }, error } = await supabase.auth.getSession()
   
   if (error) {

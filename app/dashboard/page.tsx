@@ -1,32 +1,37 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+// app/dashboard/page.tsx
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { createServerClient } from '@supabase/ssr'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+export default async function DashboardPage() {
+  // ✅ attendre la promesse
+  const cookieStore = await cookies()
 
-export default function DashboardPage() {
-  const [isConnected, setIsConnected] = useState(false);
-  
-    useEffect(() => {
-      const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setIsConnected(true);
-          console.log("✅ Utilisateur connecté :", session.user.email);
-        } else {
-          setIsConnected(false);
-          console.log("🚫 Aucun utilisateur connecté");
+  // créer le client Supabase avec les cookies
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          const c = cookieStore.get(name)
+          return c ? c.value : undefined
         }
-      };
-      checkSession();
-    });
+      }
+    }
+  )
+
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+
+  if (error || !user) {
+    redirect('/login')
+  }
+
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p>Bienvenue dans le tableau de bord admin</p>
+    <main>
+      <h1>Dashboard</h1>
+      <p>Salut, {user.email}</p>
     </main>
-  );
+  )
 }
