@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/client'
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,54 +16,80 @@ export default function HomePage() {
   const [user, setUser] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isConnected, setIsConnected] = useState(false);
+  const [likedIds, setLikedIds] = useState<string[]>([])
+
 
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsConnected(true);
-        console.log("✅ Utilisateur connecté :", session.user.email);
-      } else {
+      if (session?.user) {
+        setUser(session.user)
+        setIsConnected(true)
+
+        const { data: likes } = await supabase
+          .from('likes')
+          .select('article_id')
+          .eq('user_id', session.user.id)
+
+        setLikedIds(likes?.map(like => like.article_id) || [])
+      }
+      else {
+        setUser(null);
         setIsConnected(false);
         console.log("🚫 Aucun utilisateur connecté");
       }
     };
     checkSession();
-  });
+  }, []); // <-- très important de ne le faire qu'une fois au chargement
+
+
     const handleLike = async (articleId: string) => {
-    const userId = user?.id
+      const userId = user?.id
+      if (!userId) return
 
-    if (!userId) {
-      alert("Tu dois être connecté pour liker.")
-      return
+      const { data: existingLike, error: selectError } = await supabase
+        .from('likes')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('article_id', articleId)
+        .maybeSingle()
+
+      if (selectError) {
+        console.error('Erreur en vérifiant le like', selectError)
+        return
+      }
+
+      if (existingLike) {
+        // L'utilisateur a déjà liké → on le retire
+        const { error: deleteError } = await supabase
+          .from('likes')
+          .delete()
+          .eq('user_id', userId)
+          .eq('article_id', articleId)
+
+
+        if (deleteError) {
+          console.error('Erreur en retirant le like', deleteError)
+        } else {
+          setLikedIds((prev) => prev.filter((id) => id !== articleId))
+        }
+      } else {
+        // L'utilisateur n’a pas encore liké → on ajoute
+        const { error: insertError } = await supabase.from('likes').insert([
+          {
+            user_id: userId,
+            article_id: articleId,
+          },
+        ])
+
+        if (insertError) {
+          console.error('Erreur lors du like', insertError)
+        } else {
+          setLikedIds((prev) => [...prev, articleId])
+        }
+      }
     }
 
-    const { data: existingLike } = await supabase
-      .from('likes')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('article_id', articleId)
-      .maybeSingle()
-
-    if (existingLike) {
-      alert('Tu as déjà liké cet article.')
-      return
-    }
-
-    const { error } = await supabase.from('likes').insert([
-      {
-        user_id: userId,
-        article_id: articleId,
-      },
-    ])
-
-    if (error) {
-      console.error(error)
-      alert('Erreur lors du like.')
-    } else {
-      alert('Article liké !')
-    }
-  }
 
 
   useEffect(() => {
@@ -194,8 +221,10 @@ export default function HomePage() {
                     className="ml-4 mt-1"
                   >
                     <svg
-                      className="w-6 h-6 text-gray-400 hover:text-red-400"
-                      fill="none"
+                      className={`w-6 h-6 transition-colors ${
+                        likedIds.includes(article.id) ? 'text-red-500' : 'text-gray-400'
+                      } hover:text-red-400`}
+                      fill={likedIds.includes(article.id) ? 'currentColor' : 'none'}
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
