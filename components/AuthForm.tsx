@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
 
 interface AuthFormProps {
   mode: 'login' | 'signup'
@@ -12,6 +14,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [lastName, setLastName] = useState('')
+  const [firstName, setFirstName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -34,12 +37,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         if (data?.user) {
           localStorage.setItem('user', JSON.stringify(data.user))
-          }
+        }
 
         if (data?.session) {
           localStorage.setItem('token', data.session.access_token)
-          }
-
+        }
 
         router.push('/dashboard')
         router.refresh()
@@ -51,19 +53,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
           options: {
             data: {
               last_name: lastName,
+              first_name: firstName,
             },
           },
         })
 
-        // Si une erreur survient (par exemple email déjà utilisé), on lève l'erreur et on n'insère pas dans users
         if (error) throw error
 
-        // Vérifie que l'utilisateur a bien été créé
         if (!data.user?.id || !data.user?.email) {
           throw new Error("Erreur lors de la création de l'utilisateur")
         }
 
-        // Insertion dans la table 'users' (clé étrangère vers auth.users)
         const { error: insertError } = await supabase
           .from('users')
           .insert([
@@ -79,7 +79,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
         alert('Vérifiez votre email pour confirmer votre compte!')
       }
     } catch (error: any) {
-      // Gestion spécifique de l'email déjà utilisé
       const msg = error?.message?.toLowerCase() || ""
       if (
         msg.includes('already registered') ||
@@ -87,7 +86,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         (msg.includes('email') && msg.includes('exists')) ||
         msg.includes('duplicate key') ||
         msg.includes('unique constraint')
-        ) {
+      ) {
         setError("Cet email est déjà utilisé.")
       } else {
         setError(error.message || "Une erreur est survenue.")
@@ -98,84 +97,118 @@ export default function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        {mode === 'login' ? 'Connexion' : 'Inscription'}
-      </h2>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start pt-12 px-4">
+      {/* Logo */}
+      <div className="mb-8 flex justify-center">
+        <Image
+          src="/logo_spottin.webp" // adapte le nom si nécessaire
+          alt="Logo SpotIn"
+          width={180} // ajuste la taille selon ta maquette
+          height={60}
+          priority
+          className="object-contain"
+        />
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Tabs */}
+      <div className="flex w-80 mb-8 rounded-full border border-gray-300 p-1 bg-white shadow-sm">
+        <Link
+          href="/auth/login"
+          className={`flex-1 py-2 text-center rounded-full font-medium transition-all ${
+            mode === 'login'
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Connexion
+        </Link>
+        <Link
+          href="/auth/signup"
+          className={`flex-1 py-2 text-center rounded-full font-medium transition-all ${
+            mode === 'signup'
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          Inscription
+        </Link>
+      </div>
+
+      {/* Formulaire */}
+      <form onSubmit={handleSubmit} className="w-80 space-y-4">
         {mode === 'signup' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Nom
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
+          <>
+            {/* Nom */}
+            <div>
+              <label className="block mb-2 font-medium text-gray-700 text-sm">Nom</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Entrez votre nom"
+                className="w-full px-4 py-3 rounded-full border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition placeholder-gray-400"
+                required
+              />
+            </div>
+            
+            {/* Prénom */}
+            <div>
+              <label className="block mb-2 font-medium text-gray-700 text-sm">Prénom</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Entrez votre prénom"
+                className="w-full px-4 py-3 rounded-full border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition placeholder-gray-400"
+                required
+              />
+            </div>
+          </>
         )}
 
+        {/* E-mail */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
+          <label className="block mb-2 font-medium text-gray-700 text-sm">E-mail</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Entrez une adresse mail"
+            className="w-full px-4 py-3 rounded-full border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition placeholder-gray-400"
             required
           />
         </div>
 
+        {/* Mot de passe */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Mot de passe
-          </label>
+          <label className="block mb-2 font-medium text-gray-700 text-sm">Mot de passe</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder={mode === 'signup' ? "Entrez un mot de passe" : "Entrez votre mot de passe"}
+            className="w-full px-4 py-3 rounded-full border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition placeholder-gray-400"
             required
             minLength={6}
           />
         </div>
 
+        {/* Message d'erreur */}
         {error && (
-          <div className="text-red-600 text-sm">{error}</div>
+          <div className="text-red-600 text-sm text-center bg-red-50 py-2 px-4 rounded-lg border border-red-200">
+            {error}
+          </div>
         )}
 
+        {/* Bouton */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          className="w-full mt-6 py-3 rounded-xl bg-gray-900 text-white font-semibold text-lg shadow-lg transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Chargement...' : (mode === 'login' ? 'Se connecter' : "S'inscrire")}
         </button>
       </form>
-
-      <div className="mt-4 text-center">
-        {mode === 'login' ? (
-          <p>
-            Pas de compte ?{' '}
-            <a href="/auth/signup" className="text-blue-600 hover:text-blue-800">
-              S'inscrire
-            </a>
-          </p>
-        ) : (
-          <p>
-            Déjà un compte ?{' '}
-            <a href="/auth/login" className="text-blue-600 hover:text-blue-800">
-              Se connecter
-            </a>
-          </p>
-        )}
-      </div>
     </div>
   )
 }
