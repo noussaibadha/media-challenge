@@ -52,7 +52,7 @@ export default function ProfileClient({
   }, [geo])
 
   return (
-    <div className="min-h-screen transition-colors bg-[#F1F1F1] dark:bg-[#242424]">
+    <div className={`min-h-screen transition-colors ${darkMode ? 'bg-[#242424]' : 'bg-white'}`}>
       {/* Header avec fond dégradé */}
       <div className="bg-gradient-to-br from-purple-600 to-blue-400 pb-8 rounded-b-3xl">
         <div className="flex flex-col items-center pt-8">
@@ -73,11 +73,7 @@ export default function ProfileClient({
             </div>
             <div className="flex flex-col items-center">
               <span className="text-white text-lg font-bold">{user.followers}</span>
-              <span className="text-white text-xs opacity-80">Followers</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-white text-lg font-bold">{user.suivis}</span>
-              <span className="text-white text-xs opacity-80">Suivis</span>
+              <span className="text-white text-xs opacity-80">Spot proposé</span>
             </div>
           </div>
         </div>
@@ -85,13 +81,13 @@ export default function ProfileClient({
 
       {/* Paramètres */}
       <div className="px-4 mt-8 pb-20">
-        <h2 className="text-lg font-semibold mb-2 text-black dark:text-white">Paramètre</h2>
+        <h2 className={`text-lg font-semibold mb-2 ${darkMode ? 'text-white' : 'text-black'}`}>Paramètre</h2>
         <div className="space-y-6">
           {/* Notifications */}
-          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-[#30313A] px-4 py-3 shadow-sm border border-gray-200 dark:border-[#353646]">
+          <div className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-sm ${darkMode ? 'bg-[#30313A]' : 'bg-[#F1F1F1]'}`}>
             <div>
-              <div className="font-medium text-black dark:text-white">Notifications</div>
-              <div className="text-xs text-gray-700 dark:text-gray-300 max-w-xs">
+              <div className={`font-medium ${darkMode ? 'text-white' : 'text-black'}`}>Notifications</div>
+              <div className={`text-xs max-w-xs ${darkMode ? 'text-white' : 'text-[#7C7C7C]'}`}>
                 Active les notifications pour recevoir des alertes sur les événements et des recommandations.
               </div>
             </div>
@@ -102,15 +98,15 @@ export default function ProfileClient({
                 checked={notif}
                 onChange={() => setNotif(!notif)}
               />
-              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-colors duration-200"></div>
-              <div className={`absolute left-0 w-5 h-5 bg-white dark:bg-[#242424] rounded-full shadow transform transition-transform duration-200 ${notif ? 'translate-x-5' : ''}`}></div>
+              <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-gray-300 transition-colors duration-200`}></div>
+              <div className={`absolute left-0 w-5 h-5 ${darkMode ? 'bg-[#242424]' : 'bg-white'} rounded-full shadow transform transition-transform duration-200 ${notif ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
           {/* Géolocalisation */}
-          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-[#30313A] px-4 py-3 shadow-sm border border-gray-200 dark:border-[#353646]">
+          <div className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-sm ${darkMode ? 'bg-[#30313A]' : 'bg-[#F1F1F1]'}`}>
             <div>
-              <div className="font-medium text-black dark:text-white">Géolocalisation</div>
-              <div className="text-xs text-gray-700 dark:text-gray-300 max-w-xs">
+              <div className={`font-medium ${darkMode ? 'text-white' : 'text-black'}`}>Géolocalisation</div>
+              <div className={`text-xs max-w-xs ${darkMode ? 'text-white' : 'text-[#7C7C7C]'}`}>
                 Autorise l’application à accéder à ta position pour améliorer la pertinence.
               </div>
             </div>
@@ -121,15 +117,15 @@ export default function ProfileClient({
                 checked={geo}
                 onChange={() => setGeo(!geo)}
               />
-              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-colors duration-200"></div>
-              <div className={`absolute left-0 w-5 h-5 bg-white dark:bg-[#242424] rounded-full shadow transform transition-transform duration-200 ${geo ? 'translate-x-5' : ''}`}></div>
+              <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-gray-300 transition-colors duration-200`}></div>
+              <div className={`absolute left-0 w-5 h-5 ${darkMode ? 'bg-[#242424]' : 'bg-white'} rounded-full shadow transform transition-transform duration-200 ${geo ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
           {/* Dark mode */}
-          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-[#30313A] px-4 py-3 shadow-sm border border-gray-200 dark:border-[#353646]">
+          <div className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-sm ${darkMode ? 'bg-[#30313A]' : 'bg-[#F1F1F1]'}`}>
             <div>
-              <div className="font-medium text-black dark:text-white">Mode sombre</div>
-              <div className="text-xs text-gray-700 dark:text-gray-300 max-w-xs">
+              <div className={`font-medium ${darkMode ? 'text-white' : 'text-black'}`}>Mode sombre</div>
+              <div className={`text-xs max-w-xs ${darkMode ? 'text-white' : 'text-[#7C7C7C]'}`}>
                 Active le mode sombre pour reposer tes yeux la nuit.
               </div>
             </div>
@@ -140,8 +136,8 @@ export default function ProfileClient({
                 checked={darkMode}
                 onChange={() => setDarkMode(!darkMode)}
               />
-              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-colors duration-200"></div>
-              <div className={`absolute left-0 w-5 h-5 bg-white dark:bg-[#242424] rounded-full shadow transform transition-transform duration-200 ${darkMode ? 'translate-x-5' : ''}`}></div>
+              <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-black dark:peer-checked:bg-gray-300 transition-colors duration-200`}></div>
+              <div className={`absolute left-0 w-5 h-5 ${darkMode ? 'bg-[#242424]' : 'bg-white'} rounded-full shadow transform transition-transform duration-200 ${darkMode ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
         </div>
