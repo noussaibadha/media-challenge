@@ -42,7 +42,7 @@ export default function LikesPage() {
   }, [])
 
   const handleLike = async (articleId: string) => {
-    const userId = user?.id
+    const userId = (user as any)?.id
     if (!userId) return
 
     const { data: existingLike } = await supabase
@@ -54,20 +54,27 @@ export default function LikesPage() {
 
     if (existingLike) {
       // Supprimer le like
-      await supabase
+      const { error } = await supabase
         .from('likes')
         .delete()
         .eq('user_id', userId)
         .eq('article_id', articleId)
 
-      setLikedIds(prev => prev.filter(id => id !== articleId))
+      if (!error) {
+        // Mise à jour immédiate du state local
+        setLikedIds(prev => prev.filter(id => id !== articleId))
+        setArticles(prev => prev.filter((article: any) => article.id !== articleId))
+      }
     } else {
-      // Ajouter le like
-      await supabase
+      // Ajouter le like (au cas où tu veux pouvoir ajouter ici aussi)
+      const { error } = await supabase
         .from('likes')
         .insert({ user_id: userId, article_id: articleId })
 
-      setLikedIds(prev => [...prev, articleId])
+      if (!error) {
+        setLikedIds(prev => [...prev, articleId])
+        // Optionnel : refetch ou ajouter l'article à la liste
+      }
     }
   }
 

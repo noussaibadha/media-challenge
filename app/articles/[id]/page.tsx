@@ -78,7 +78,7 @@ export default function ArticleDetail() {
       <div className="bg-gray-50 p-5 rounded-2xl">
         <h2 className="text-lg font-semibold mb-2">Description</h2>
         <p className="text-gray-800 text-sm">
-          {article.long_description || "Aucune description détaillée disponible."}
+          {article.description || "Aucune description détaillée disponible."}
         </p>
       </div>
     </div>
