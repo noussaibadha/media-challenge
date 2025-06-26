@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useDarkMode } from '@/context/DarkModeContext'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,7 +9,7 @@ const supabase = createClient(
 )
 
 export default function HomePage() {
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode, toggleDarkMode } = useDarkMode()
   const [articles, setArticles] = useState<any[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchTerm, setSearchTerm] = useState('')
@@ -64,23 +65,6 @@ export default function HomePage() {
     }
   }
 
-
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode')
-    if (savedDarkMode) setDarkMode(JSON.parse(savedDarkMode))
-  }, [])
-
-  //ensuite lié le dark mode au class css
-  useEffect(() => {
-    if(darkMode){
-      document.documentElement.classList.add('dark')
-    } else{
-      document.documentElement.classList.remove('dark')
-    }
-
-    localStorage.setItem('darkMode', JSON.stringify(darkMode))
-  }, [darkMode])
-
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await supabase
@@ -114,12 +98,6 @@ export default function HomePage() {
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900/80' : 'bg-gray-100'} overflow-hidden`}>
       {/* Header */}
       <div className="px-4 pt-12 pb-4">
-        <button 
-          onClick={() => setDarkMode(!darkMode)}
-          className="fixed top-4 right-4 z-50 p-2 bg-gray-200 dark:bg-gray-800 rounded-full shadow-lg"
-        >
-        {darkMode ? '☀️' : '🌙'}
-        </button>
         <h1 className="text-orange-400 text-3xl font-bold mb-6 text-center">Découvrir</h1>
 
         {/* Search Bar */}
