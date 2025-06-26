@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-
+import { createClient } from '@supabase/supabase-js'
+import { useDarkMode } from '@/context/DarkModeContext'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,104 +9,61 @@ const supabase = createClient(
 )
 
 export default function HomePage() {
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode, toggleDarkMode } = useDarkMode()
   const [articles, setArticles] = useState<any[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchTerm, setSearchTerm] = useState('')
   const [user, setUser] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isConnected, setIsConnected] = useState(false);
-  const [likedIds, setLikedIds] = useState<string[]>([])
-
 
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user)
-        setIsConnected(true)
-
-        const { data: likes } = await supabase
-          .from('likes')
-          .select('article_id')
-          .eq('user_id', session.user.id)
-
-        setLikedIds(likes?.map(like => like.article_id) || [])
-      }
-      else {
-        setUser(null);
+      if (session) {
+        setIsConnected(true);
+        console.log("✅ Utilisateur connecté :", session.user.email);
+      } else {
         setIsConnected(false);
         console.log("🚫 Aucun utilisateur connecté");
       }
     };
     checkSession();
-  }, []); // <-- très important de ne le faire qu'une fois au chargement
-
-
+  });
     const handleLike = async (articleId: string) => {
-      const userId = user?.id
-      if (!userId) return
+    const userId = user?.id
 
-      const { data: existingLike, error: selectError } = await supabase
-        .from('likes')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('article_id', articleId)
-        .maybeSingle()
-
-      if (selectError) {
-        console.error('Erreur en vérifiant le like', selectError)
-        return
-      }
-
-      if (existingLike) {
-        // L'utilisateur a déjà liké → on le retire
-        const { error: deleteError } = await supabase
-          .from('likes')
-          .delete()
-          .eq('user_id', userId)
-          .eq('article_id', articleId)
-
-
-        if (deleteError) {
-          console.error('Erreur en retirant le like', deleteError)
-        } else {
-          setLikedIds((prev) => prev.filter((id) => id !== articleId))
-        }
-      } else {
-        // L'utilisateur n’a pas encore liké → on ajoute
-        const { error: insertError } = await supabase.from('likes').insert([
-          {
-            user_id: userId,
-            article_id: articleId,
-          },
-        ])
-
-        if (insertError) {
-          console.error('Erreur lors du like', insertError)
-        } else {
-          setLikedIds((prev) => [...prev, articleId])
-        }
-      }
+    if (!userId) {
+      alert("Tu dois être connecté pour liker.")
+      return
     }
 
+    const { data: existingLike } = await supabase
+      .from('likes')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('article_id', articleId)
+      .maybeSingle()
 
-
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode')
-    if (savedDarkMode) setDarkMode(JSON.parse(savedDarkMode))
-  }, [])
-
-  //ensuite lié le dark mode au class css
-  useEffect(() => {
-    if(darkMode){
-      document.documentElement.classList.add('dark')
-    } else{
-      document.documentElement.classList.remove('dark')
+    if (existingLike) {
+      alert('Tu as déjà liké cet article.')
+      return
     }
 
-    localStorage.setItem('darkMode', JSON.stringify(darkMode))
-  }, [darkMode])
+    const { error } = await supabase.from('likes').insert([
+      {
+        user_id: userId,
+        article_id: articleId,
+      },
+    ])
+
+    if (error) {
+      console.error(error)
+      alert('Erreur lors du like.')
+    } else {
+      alert('Article liké !')
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,12 +98,6 @@ export default function HomePage() {
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900/80' : 'bg-gray-100'} overflow-hidden`}>
       {/* Header */}
       <div className="px-4 pt-12 pb-4">
-        <button 
-          onClick={() => setDarkMode(!darkMode)}
-          className="fixed top-4 right-4 z-50 p-2 bg-gray-200 dark:bg-gray-800 rounded-full shadow-lg"
-        >
-        {darkMode ? '☀️' : '🌙'}
-        </button>
         <h1 className="text-orange-400 text-3xl font-bold mb-6 text-center">Découvrir</h1>
 
         {/* Search Bar */}
@@ -221,10 +172,8 @@ export default function HomePage() {
                     className="ml-4 mt-1"
                   >
                     <svg
-                      className={`w-6 h-6 transition-colors ${
-                        likedIds.includes(article.id) ? 'text-red-500' : 'text-gray-400'
-                      } hover:text-red-400`}
-                      fill={likedIds.includes(article.id) ? 'currentColor' : 'none'}
+                      className="w-6 h-6 text-gray-400 hover:text-red-400"
+                      fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
