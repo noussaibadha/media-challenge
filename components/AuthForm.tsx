@@ -61,7 +61,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             {
               id: data.user.id,
               name: lastName,
-            //   email: lastName,
+              //   email: lastName,
               visibility: 0,
             },
           ])
@@ -72,7 +72,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
       }
     } catch (error: any) {
       setError("email déjà utilisé")
-    //   setError(error.message)
     } finally {
       setLoading(false)
     }
