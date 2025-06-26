@@ -1,6 +1,7 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useDarkMode } from '@/context/DarkModeContext'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,7 @@ const supabase = createClient(
 )
 
 export default function PropositionPage() {
+  const { darkMode } = useDarkMode()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -17,11 +19,6 @@ export default function PropositionPage() {
   })
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-
-  // ✅ Force le light mode pour éviter le mélange
-  useEffect(() => {
-    document.documentElement.classList.remove('dark')
-  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -93,11 +90,28 @@ export default function PropositionPage() {
     }
   }
 
+  // Utilitaires pour les classes input/select
+  const inputClass = `w-full mb-4 px-4 py-2 border-2 rounded-full outline-none transition
+    ${darkMode
+      ? 'bg-[#23232b] border-purple-700 text-white placeholder-gray-400 focus:border-purple-400'
+      : 'bg-white border-purple-400 text-black placeholder-gray-500 focus:border-purple-600'
+    }`
+
+  const selectClass = `w-full mb-4 px-4 py-2 border-2 rounded-full outline-none transition
+    ${darkMode
+      ? 'bg-[#23232b] border-purple-700 text-white focus:border-purple-400'
+      : 'bg-white border-purple-400 text-black focus:border-purple-600'
+    }`
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white text-black">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+    <div className={`min-h-screen flex items-center justify-center transition-colors ${darkMode ? 'bg-[#242424] text-white' : 'bg-white text-black'}`}>
+      <form
+        onSubmit={handleSubmit}
+        className={`p-6 rounded-xl shadow-xl w-full max-w-md transition-colors
+          ${darkMode ? 'bg-[#23232b] text-white' : 'bg-white text-black'}`}
+      >
         <h1 className="text-3xl font-bold mb-1">Ajoutez un spot</h1>
-        <p className="mb-6 text-sm text-gray-600">
+        <p className={`mb-6 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
           T’as un spot qui mérite d’être connu ? Partage-le ici et fais-le monter en influence !
         </p>
 
@@ -108,7 +122,7 @@ export default function PropositionPage() {
           placeholder="Choisissez un titre"
           value={formData.title}
           onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 border-2 border-purple-400 rounded-full outline-none"
+          className={inputClass}
         />
 
         {/* Description */}
@@ -118,7 +132,7 @@ export default function PropositionPage() {
           placeholder="Choisissez une description"
           value={formData.description}
           onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 border-2 border-purple-400 rounded-full outline-none"
+          className={inputClass}
         />
 
         {/* Adresse */}
@@ -128,7 +142,7 @@ export default function PropositionPage() {
           placeholder="Entrez une adresse"
           value={formData.adress}
           onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 border-2 border-purple-400 rounded-full outline-none"
+          className={inputClass}
         />
 
         {/* Catégories */}
@@ -137,7 +151,7 @@ export default function PropositionPage() {
           name="categorie"
           value={formData.categorie}
           onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 border-2 border-purple-400 rounded-full outline-none bg-white"
+          className={selectClass}
         >
           <option value="">Sélectionnez</option>
           <option value="Bar">Bar</option>
@@ -152,7 +166,7 @@ export default function PropositionPage() {
           name="affluence"
           value={formData.affluence}
           onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 border-2 border-purple-400 rounded-full outline-none bg-white"
+          className={selectClass}
         >
           <option value="">Sélectionnez</option>
           <option value="Faible">Faible</option>
@@ -162,18 +176,20 @@ export default function PropositionPage() {
 
         {/* Fichier */}
         <label className="block font-semibold mb-1">Fichier</label>
-        <p className="text-sm text-gray-500 mb-2">Montre le spot en image ou en vidéo pour donner envie d’y être !</p>
+        <p className={`text-sm mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          Montre le spot en image ou en vidéo pour donner envie d’y être !
+        </p>
         <input
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="w-full mb-4 px-4 py-2 border-2 border-purple-400 rounded-full outline-none bg-white"
+          className={inputClass}
         />
 
         {/* Aperçu image */}
         {previewUrl && (
           <div className="mb-4">
-            <p className="text-sm text-gray-500">Aperçu :</p>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Aperçu :</p>
             <img src={previewUrl} alt="Preview" className="w-full rounded-xl mt-2 shadow" />
           </div>
         )}
@@ -181,7 +197,8 @@ export default function PropositionPage() {
         {/* Bouton */}
         <button
           type="submit"
-          className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:opacity-90 transition"
+          className={`w-full py-3 rounded-xl font-semibold hover:opacity-90 transition
+            ${darkMode ? 'bg-purple-700 text-white' : 'bg-black text-white'}`}
         >
           Ajouter un spot
         </button>

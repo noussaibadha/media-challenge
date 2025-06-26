@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useDarkMode } from '@/context/DarkModeContext'
 
 
 const supabase = createClient()
@@ -10,23 +11,7 @@ export default function LikesPage() {
   const [articles, setArticles] = useState<any[]>([])
   const [likedIds, setLikedIds] = useState<string[]>([])
   const [user, setUser] = useState<any | null>(null)
-
-  const [darkMode, setDarkMode] = useState(false)
-
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode')
-    if (savedDarkMode) setDarkMode(JSON.parse(savedDarkMode))
-  }, [])
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    localStorage.setItem('darkMode', JSON.stringify(darkMode))
-  }, [darkMode])
-
+  const { darkMode, toggleDarkMode } = useDarkMode()
 
   useEffect(() => {
     const fetchLikes = async () => {
