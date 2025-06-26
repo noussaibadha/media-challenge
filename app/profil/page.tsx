@@ -31,7 +31,8 @@ export default async function ProfilePage() {
   return (
     <ProfileClient
       user={{
-        email: user.email,
+        id: user.id,
+        email: user.email || '',
         pseudo: user.user_metadata?.last_name || 'Pseudo',
         avatar: user.user_metadata?.avatar_url || '	https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
         favoris: 12,

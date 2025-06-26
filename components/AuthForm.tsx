@@ -31,20 +31,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
-        })
+        });
 
-        if (error) throw error
+        if (error) throw error;
 
+        // Facultatif : stocker l'utilisateur si besoin
         if (data?.user) {
-          localStorage.setItem('user', JSON.stringify(data.user))
+          localStorage.setItem('user', JSON.stringify(data.user));
         }
 
         if (data?.session) {
-          localStorage.setItem('token', data.session.access_token)
+          localStorage.setItem('token', data.session.access_token);
         }
 
-        router.push('/dashboard')
-        router.refresh()
+        // ⏳ Attends un peu que Supabase synchronise la session
+        await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms suffit souvent
+
+        router.push('/dashboard');
       } else {
         // Signup
         const { data, error } = await supabase.auth.signUp({
