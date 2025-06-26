@@ -81,20 +81,31 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         alert('Vérifiez votre email pour confirmer votre compte!')
       }
-    } catch (error: any) {
-      const msg = error?.message?.toLowerCase() || ""
-      if (
-        msg.includes('already registered') ||
-        msg.includes('user already registered') ||
-        (msg.includes('email') && msg.includes('exists')) ||
-        msg.includes('duplicate key') ||
-        msg.includes('unique constraint')
-      ) {
-        setError("Cet email est déjà utilisé.")
+    } catch (error: unknown) {
+      let errorMsg = "";
+      if (error instanceof Error) {
+        errorMsg = error.message.toLowerCase();
+      } else if (typeof error === 'string') {
+        errorMsg = error.toLowerCase();
       } else {
-        setError(error.message || "Une erreur est survenue.")
+        errorMsg = "une erreur est survenue";
       }
-    } finally {
+
+      if (
+        errorMsg.includes('already registered') ||
+        errorMsg.includes('user already registered') ||
+        (errorMsg.includes('email') && errorMsg.includes('exists')) ||
+        errorMsg.includes('duplicate key') ||
+        errorMsg.includes('unique constraint')
+      ) {
+        setError("Cet email est déjà utilisé.");
+      } else {
+        setError(errorMsg);
+        // Ou, si tu veux toujours afficher "Une erreur est survenue" pour les erreurs non gérées :
+        // setError("Une erreur est survenue");
+      }
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -117,21 +128,19 @@ export default function AuthForm({ mode }: AuthFormProps) {
       <div className="flex w-80 mb-8 rounded-full border border-gray-300 p-1 bg-white shadow-sm">
         <Link
           href="/auth/login"
-          className={`flex-1 py-2 text-center rounded-full font-medium transition-all ${
-            mode === 'login'
-              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
+          className={`flex-1 py-2 text-center rounded-full font-medium transition-all ${mode === 'login'
+            ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
+            : 'text-gray-600 hover:text-gray-800'
+            }`}
         >
           Connexion
         </Link>
         <Link
           href="/auth/signup"
-          className={`flex-1 py-2 text-center rounded-full font-medium transition-all ${
-            mode === 'signup'
-              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
+          className={`flex-1 py-2 text-center rounded-full font-medium transition-all ${mode === 'signup'
+            ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
+            : 'text-gray-600 hover:text-gray-800'
+            }`}
         >
           Inscription
         </Link>
@@ -153,7 +162,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 required
               />
             </div>
-            
+
             {/* Prénom */}
             <div>
               <label className="block mb-2 font-medium text-gray-700 text-sm">Prénom</label>
