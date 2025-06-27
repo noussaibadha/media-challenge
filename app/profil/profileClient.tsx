@@ -26,6 +26,7 @@ export default function ProfileClient({ user }: { user: UserProps }) {
   const [notif, setNotif] = useState(false)
   const [geo, setGeo] = useState(false)
   const { darkMode, toggleDarkMode } = useDarkMode()
+  const [likeCount, setLikeCount] = useState<number>(0)
   const [articleCount, setArticleCount] = useState<number>(0)
   const [articles, setArticles] = useState<Article[]>([])
   const router = useRouter()
@@ -76,6 +77,21 @@ export default function ProfileClient({ user }: { user: UserProps }) {
     if (user.id) fetchArticles()
   }, [user.id])
 
+
+  useEffect(() => {
+    const fetchLikeCount = async () => {
+      const supabase = createClient()
+      const { count, error } = await supabase
+        .from('likes')
+        .select('user_id', { count: 'exact', head: true }) // head: true = ne récupère pas les lignes, juste le count
+        .eq('user_id', user.id)
+      if (!error && typeof count === 'number') {
+        setLikeCount(count)
+      }
+    }
+    if (user.id) fetchLikeCount()
+  }, [user.id])
+
   // Utilitaire pour formater la date
   function formatDate(dateString: string) {
     const date = new Date(dateString)
@@ -110,7 +126,7 @@ export default function ProfileClient({ user }: { user: UserProps }) {
           {/* Statistiques */}
           <div className="flex justify-center gap-8 mt-2">
             <div className="flex flex-col items-center">
-              <span className="text-white text-lg font-bold">{user.favoris}</span>
+              <span className="text-white text-lg font-bold">{likeCount}</span>
               <span className="text-white text-xs opacity-80">Favoris</span>
             </div>
             <div className="flex flex-col items-center">
