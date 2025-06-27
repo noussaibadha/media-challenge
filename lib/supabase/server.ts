@@ -10,12 +10,13 @@ export async function createClient() {
     {
       cookies: {
         get(name: string) {
-          return await cookieStore.get(name)?.value
+          return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
+            console.log(error)
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -25,6 +26,7 @@ export async function createClient() {
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
+            console.log(error)
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.

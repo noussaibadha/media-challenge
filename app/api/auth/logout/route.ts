@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     const { error } = await supabase.auth.signOut()
 
@@ -19,6 +19,7 @@ export async function POST() {
     })
 
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
-    
-    const supabase = createClient()
-    
+
+    const supabase = await createClient()
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -104,7 +104,7 @@ export default function SpotsPage() {
 
       {previewUrl && (
         <div>
-          <p className="text-sm text-gray-500">Aperçu de l'image :</p>
+          <p className="text-sm text-gray-500">Aperçu de l image :</p>
           <img src={previewUrl} alt="Prévisualisation" className="w-60 rounded shadow mt-2" />
         </div>
       )}
