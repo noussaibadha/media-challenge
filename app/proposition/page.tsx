@@ -1,12 +1,12 @@
 'use client'
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/client'
+
+
+
 import { useDarkMode } from '@/context/DarkModeContext'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabase = createClient()
 
 export default function PropositionPage() {
   const { darkMode } = useDarkMode()
@@ -66,13 +66,27 @@ export default function PropositionPage() {
       imageUrl = publicUrlData.publicUrl
     }
 
-    const { error: insertError } = await supabase.from('articles').insert([
-      {
-        ...formData,
-        img: imageUrl,
-        status: false
-      }
-    ])
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser()
+
+
+  if (!user) {
+    alert("Tu dois être connecté pour proposer un spot.")
+    return
+  }
+
+
+   const { error: insertError } = await supabase.from('articles').insert([
+    {
+      ...formData,
+      img: imageUrl,
+      status: false,
+      user_id: user?.id // ✅ on ajoute l'utilisateur connecté
+    }
+  ])
+
 
     if (insertError) {
       alert('Erreur : ' + insertError.message)

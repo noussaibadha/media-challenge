@@ -91,25 +91,86 @@ export default function SpotsPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-4 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold">Créer un article</h2>
+    <form onSubmit={handleSubmit} className="bg-white text-black dark:bg-white dark:text-black p-8 rounded-xl shadow max-w-md mx-auto space-y-6">
+  <h2 className="text-2xl font-bold uppercase text-gray-800">Ajoutez un spot</h2>
 
-      <input name="title" placeholder="Titre" onChange={handleChange} value={formData.title} className="border p-2 w-full" />
-      <input name="description" placeholder="Description" onChange={handleChange} value={formData.description} className="border p-2 w-full" />
-      <input name="adress" placeholder="Adresse" onChange={handleChange} value={formData.adress} className="border p-2 w-full" />
-      <input name="categorie" placeholder="Catégorie" onChange={handleChange} value={formData.categorie} className="border p-2 w-full" />
-      <input name="affluence" placeholder="Affluence" onChange={handleChange} value={formData.affluence} className="border p-2 w-full" />
+  <div>
+    <label className="block font-semibold">Titre</label>
+    <input
+      name="title"
+      placeholder="Choisissez un titre"
+      onChange={handleChange}
+      value={formData.title}
+      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+    />
+  </div>
 
-      <input type="file" accept="image/*" onChange={handleFileChange} className="border p-2 w-full" />
+  <div>
+    <label className="block font-semibold">Description</label>
+    <input
+      name="description"
+      placeholder="Choisissez une description"
+      onChange={handleChange}
+      value={formData.description}
+      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+    />
+  </div>
 
-      {previewUrl && (
-        <div>
-          <p className="text-sm text-gray-500">Aperçu de l image :</p>
-          <img src={previewUrl} alt="Prévisualisation" className="w-60 rounded shadow mt-2" />
-        </div>
-      )}
+  <div>
+    <label className="block font-semibold">Adresse</label>
+    <input
+      name="adress"
+      placeholder="Entrez une adresse"
+      onChange={handleChange}
+      value={formData.adress}
+      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+    />
+  </div>
 
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Créer</button>
-    </form>
+  <div>
+    <label className="block font-semibold">Catégories</label>
+    <input
+      name="categorie"
+      placeholder="Sélectionnez"
+      onChange={handleChange}
+      value={formData.categorie}
+      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+    />
+  </div>
+
+  <div>
+    <label className="block font-semibold">Affluence</label>
+    <input
+      name="affluence"
+      placeholder="Sélectionnez"
+      onChange={handleChange}
+      value={formData.affluence}
+      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+    />
+  </div>
+
+  <div>
+    <label className="block font-semibold">Fichier</label>
+    <p className="text-xs text-gray-500 mb-1">Montre le spot en image ou en vidéo pour donner envie d’y être !</p>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handleFileChange}
+      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+    />
+  </div>
+
+  {previewUrl && (
+    <div className="mt-4">
+      <p className="text-sm text-gray-500">Aperçu de l’image :</p>
+      <img src={previewUrl} alt="Prévisualisation" className="w-60 rounded shadow mt-2" />
+    </div>
+  )}
+
+  <button type="submit" className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900">
+    Ajouter un spot
+  </button>
+</form>
+
   )
 }
