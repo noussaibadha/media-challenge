@@ -24,7 +24,7 @@ useEffect(() => {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      router.push('/auth/login') // pas connecté
+      router.push('/') // pas connecté
       return
     }
 
