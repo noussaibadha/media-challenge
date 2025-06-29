@@ -54,7 +54,25 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  // Protection des routes dashboard
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    const { data: { user }, error } = await supabase.auth.getUser()
+
+    if (error || !user) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Vérification de la propriété visibility
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('visibility')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData || userData.visibility !== 1) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
 
   return response
 }
