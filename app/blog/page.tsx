@@ -59,7 +59,7 @@ export default function HomePage() {
           {/* Conteneur pour la vidéo responsive */}
           <div className="relative w-full pb-[56.25%]"> {/* 16:9 aspect ratio */}
             <iframe
-              src="https://www.youtube.com/embed/yBDWSedmHfg?si=7zr4JD-p-RzqPynV"
+              src="https://www.youtube.com/embed/MGgFGVg1bP0"
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
