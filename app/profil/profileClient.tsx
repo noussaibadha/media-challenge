@@ -138,7 +138,7 @@ export default function ProfileClient({ user }: { user: UserProps }) {
       </div>
 
       {/* Propositions de spot */}
-      <div className="px-4 mt-6 mb-8">
+      <div className="px-4 mt-6 mb-8 w-full md:px-[15%]">
         <h2 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-black'}`}>Propositions de spot</h2>
         <div className="space-y-4">
           {articles.length === 0 && (
@@ -187,7 +187,7 @@ export default function ProfileClient({ user }: { user: UserProps }) {
       </div>
 
       {/* Paramètres */}
-      <div className="px-4 pb-20">
+      <div className="px-4 pb-20 w-full md:px-[15%]">
         <h2 className={`text-lg font-semibold mb-2 ${darkMode ? 'text-white' : 'text-black'}`}>Paramètre</h2>
         <div className="space-y-6">
           {/* Notifications */}
@@ -251,7 +251,7 @@ export default function ProfileClient({ user }: { user: UserProps }) {
           <div className="flex justify-center pt-6">
             <button
               onClick={handleLogout}
-              className="px-6 py-2 rounded-full font-medium bg-red-500 text-white hover:bg-red-600 transition duration-300"
+              className={`px-6 py-2 rounded-full font-medium ${darkMode ? 'bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400' : 'bg-[#242424]'} text-white hover:bg-red-600 transition duration-300 hover:cursor-pointer`}
             >
               Se déconnecter
             </button>

@@ -88,7 +88,7 @@ export default function LikesPage() {
       {articles.length === 0 ? (
         <p className="text-center text-gray-400">Tu n’as pas encore liké de spots.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 w-full p-4 md:mx-[15%] md:max-w-[70%]">
           {articles.map((article, index) => (
             <Link key={article.id} href={`/articles/${article.id}`} className="block">
               <div className={`rounded-3xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>

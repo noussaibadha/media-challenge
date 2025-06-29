@@ -249,7 +249,7 @@ const toggleLike = async (commentId: string, liked: boolean) => {
         <meta name="twitter:description" content={article.description} />
         <meta name="twitter:image" content={article.img} />
       </Head>
-      <div className={`min-h-screen ${bgPage} px-4 pt-8 pb-24 ${textPage}`}>
+      <div className={`min-h-screen ${bgPage} px-4 pt-8 pb-24 ${textPage} md:w-full md:px-[15%]`}>
         <button
           onClick={() => router.back()}
           className={`mb-4 text-xl ${textPage}`}
