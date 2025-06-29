@@ -1,7 +1,6 @@
+// next.config.ts
 import withPWA from 'next-pwa'
-import type { NextConfig } from 'next'
 
-<<<<<<< HEAD
 const withPwaConfig = withPWA({
   dest: 'public',
   register: true,
@@ -48,22 +47,17 @@ const withPwaConfig = withPWA({
     },
   ],
 })
-=======
->>>>>>> 2b3965f24e2352cb4fd340cad5ca6f3d27e62186
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-<<<<<<< HEAD
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
-=======
->>>>>>> 2b3965f24e2352cb4fd340cad5ca6f3d27e62186
   async headers() {
     return [
       {
@@ -113,48 +107,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-  fallbacks: {
-    image: '/static/images/fallback.png',
-    document: '/offline',
-  },
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts-cache',
-        expiration: {
-          maxEntries: 10,
-          maxAgeSeconds: 60 * 60 * 24 * 365,
-        },
-      },
-    },
-    {
-      urlPattern: /\.(?:png|jpg|jpeg|svg|webp)$/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'images-cache',
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 30,
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'supabase-cache',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 5,
-        },
-      },
-    },
-  ],
-})(nextConfig)
+export default withPwaConfig(nextConfig)
