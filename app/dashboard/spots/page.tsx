@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +19,37 @@ export default function SpotsPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [categories, setCategories] = useState<string[]>([])
   const [affluences, setAffluences] = useState<string[]>([])
+
+
+
+  const router = useRouter()
+
+useEffect(() => {
+  const checkVisibility = async () => {
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      router.push('/auth/login')
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('visibility')
+      .eq('id', user.id)
+      .single()
+
+    if (error || !data || data.visibility !== 1) {
+      router.push('/') // redirection si pas admin
+    }
+  }
+
+  checkVisibility()
+}, [router])
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -110,6 +143,32 @@ export default function SpotsPage() {
       setPreviewUrl(null)
     }
   }
+
+  useEffect(() => {
+  const checkVisibility = async () => {
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      router.push('/')
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('visibility')
+      .eq('id', user.id)
+      .single()
+
+    if (error || !data || data.visibility !== 1) {
+      router.push('/')
+    }
+  }
+
+  checkVisibility()
+}, [router])
 
   return (
     <form onSubmit={handleSubmit} className="bg-white text-black dark:bg-white dark:text-black p-8 rounded-xl shadow max-w-md mx-auto space-y-6">
