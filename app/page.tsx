@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client' // ✅ BON chemin !
 import SplashScreen from '@/components/SplashScreen'
+import Link from "next/link";
 
 import { useDarkMode } from '@/context/DarkModeContext'
 
@@ -127,14 +128,32 @@ export default function HomePage() {
 
   return (
     <>
-    {loading && <SplashScreen onFinish={() => setLoading(false)} />}
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900/80' : 'bg-gray-100'} overflow-hidden ${loading ? 'overflow-hidden h-screen' : ''}`}>
-        {/* Header */}
-        <div className="px-4 pt-12 pb-4">
-          <h1 className="text-orange-400 text-3xl font-bold mb-6 text-center">Découvrir</h1>
+      {loading && <SplashScreen onFinish={() => setLoading(false)} />}
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900/80' : 'bg-gray-100'} overflow-hidden`}>
+        {/* Header uniquement sur mobile */}
+        <header className={`w-full py-4 ${darkMode ? 'bg-gray-900/80' : 'bg-gray-100'} block md:hidden`}>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+            <Link href="/">
+              <img src="/logo_spottin.webp" alt="SpotIn Logo" className="h-10 w-auto" />
+            </Link>
+            <div className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full px-4 py-2">
+              <span className="text-white font-semibold">Le blog</span>
+            </div>
+          </div>
+        </header>
 
-          {/* Search Bar */}
-          <div className="relative mb-6">
+        {/* Titre avec marge et aligné à gauche */}
+        <div className="text-left my-12 max-w-4xl mx-auto px-4 sm:px-6">
+          <h1 className={`text-2xl sm:text-3xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
+            Découvrez les spots les plus tendances à Paris
+          </h1>
+        </div>
+
+
+
+        {/* Search Bar */}
+        <div className="relative mb-6 max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="relative">
             <input
               type="text"
               placeholder="Rechercher un spot..."
@@ -142,9 +161,8 @@ export default function HomePage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-gray-800/80 text-white placeholder-gray-400 px-4 py-3.5 rounded-2xl border-0 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-
             <svg
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -152,9 +170,12 @@ export default function HomePage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
+        </div>
 
-          {/* Category Tags */}
-          <div className="flex gap-3 mb-4 overflow-scroll">
+
+        {/* Category Tags */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="flex gap-3 mb-4 overflow-x-auto no-scrollbar">
             {categories.map(category => (
               <button
                 key={category}
@@ -172,7 +193,7 @@ export default function HomePage() {
         </div>
 
         {/* Main Content */}
-        <div className="px-4 pb-24">
+        <div className="px-4 pb-24 max-w-4xl mx-auto">
           <div className="space-y-6">
             {filteredArticles.map((article, index) => (
               <div key={article.id} className="bg-gray-900/90 rounded-3xl overflow-hidden">
@@ -186,7 +207,6 @@ export default function HomePage() {
                       <div className="text-sm opacity-70">du lieu</div>
                     </div>
                   )}
-
                   {/* Play Button */}
                   <button className="absolute top-4 right-4 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center">
                     <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -194,7 +214,6 @@ export default function HomePage() {
                     </svg>
                   </button>
                 </div>
-
                 {/* Content */}
                 <div className="p-6">
                   {/* Title and Heart */}
@@ -218,13 +237,10 @@ export default function HomePage() {
                           strokeLinejoin="round"
                           strokeWidth={2}
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
+                        />
                       </svg>
-
                     </button>
-
                   </div>
-
                   {/* Genre Tags */}
                   <div className="flex gap-2 mb-4">
                     <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">
@@ -232,7 +248,6 @@ export default function HomePage() {
                     </span>
                     <span className="bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium">Métal</span>
                   </div>
-
                   {/* Location */}
                   <div className="flex items-start mb-3">
                     <svg
@@ -244,24 +259,20 @@ export default function HomePage() {
                     </svg>
                     <span className="text-white text-sm">{article.adress || '50 Boulevard Voltaire, Paris'}</span>
                   </div>
-
                   {/* Opening Hours */}
                   <div className="flex items-center mb-3">
                     <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
                     <span className="text-gray-300 text-sm">Fermeture: 02:00</span>
                   </div>
-
                   {/* Event Info */}
                   <div className="flex items-center mb-4">
                     <div className="w-3 h-3 bg-yellow-400 rounded-full mr-3"></div>
                     <span className="text-gray-300 text-sm">Concert ce soir - Metallica</span>
                   </div>
-
                   {/* Affluence */}
                   <div className="mb-2">
                     <span className="text-gray-400 text-sm">Affluence prévue: Élevée</span>
                   </div>
-
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-700 rounded-full h-2">
                     <div
@@ -277,10 +288,8 @@ export default function HomePage() {
             )}
           </div>
         </div>
-
-        {/* Bottom Navigation */}
-        {/* ... votre code de navigation inchangé ... */}
       </div>
     </>
+
   )
 }

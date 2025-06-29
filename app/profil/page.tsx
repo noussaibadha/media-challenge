@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import ProfileClient from './profileClient'
 import { createServerClient } from '@supabase/ssr'
+import Link from "next/link";
 
 export default async function ProfilePage() {
     // Récupère l'utilisateur connecté
