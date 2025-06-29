@@ -28,7 +28,28 @@ export default function ProfileClient({ user }: { user: UserProps }) {
   const { darkMode, toggleDarkMode } = useDarkMode()
   const [articleCount, setArticleCount] = useState<number>(0)
   const [articles, setArticles] = useState<Article[]>([])
+  const [isAdmin, setIsAdmin] = useState(false)
+
   const router = useRouter()
+
+  useEffect(() => {
+  const checkVisibility = async () => {
+    const supabase = createClient()
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('visibility')
+      .eq('id', user.id)
+      .single()
+
+    if (!error && data?.visibility === 1) {
+      setIsAdmin(true)
+    }
+  }
+
+  if (user.id) checkVisibility()
+}, [user.id])
+
 
 
   const handleLogout = async () => {
@@ -231,15 +252,22 @@ export default function ProfileClient({ user }: { user: UserProps }) {
               <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-5 h-5 ${darkMode ? 'bg-[#242424]' : 'bg-white'} rounded-full shadow transform transition-transform duration-200 ${darkMode ? 'translate-x-5' : ''}`}></div>
             </label>
           </div>
-                    {/* Déconnexion */}
-          <div className="flex justify-center pt-6">
+         <div className="flex justify-center gap-4 pt-6">
+          {isAdmin && (
             <button
-              onClick={handleLogout}
-              className="px-6 py-2 rounded-full font-medium bg-red-500 text-white hover:bg-red-600 transition duration-300"
+              onClick={() => router.push('/dashboard')}
+              className={`px-6 py-2 rounded-full font-medium ${darkMode ? 'bg-purple-500' : 'bg-blue-600'} text-white hover:bg-purple-600 transition duration-300`}
             >
-              Se déconnecter
+              Dashboard
             </button>
-          </div>
+          )}
+          <button
+            onClick={handleLogout}
+            className={`px-6 py-2 rounded-full font-medium ${darkMode ? 'bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400' : 'bg-[#242424]'} text-white hover:bg-red-600 transition duration-300 hover:cursor-pointer`}
+          >
+            Se déconnecter
+          </button>
+        </div>
 
         </div>
       </div>
