@@ -9,7 +9,15 @@ import Head from 'next/head';
 const supabase = createClient()
 
 export default function ArticleDetail() {
-  const { id } = useParams()
+  const params = useParams<{ id: string }>()
+  // const { id } = useParams<{ id: string }>()
+  const id = params?.id
+
+  if (!id) {
+    return <div>Paramètre "id" manquant</div>
+  }
+
+  
   const articleId = Array.isArray(id) ? id[0] : id
   const { darkMode } = useDarkMode()
 
