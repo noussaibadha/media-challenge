@@ -20,7 +20,6 @@ export default async function ProfilePage() {
         }
     )
     const { data: { user }, error } = await supabase.auth.getUser()
-    console.log(user)
 
   // Redirige vers /login si non connecté
   if (!user) {
