@@ -136,7 +136,8 @@ export default function HomePage() {
             <Link href="/">
               <img src="/logo_spottin.webp" alt="SpotIn Logo" className="h-10 w-auto" />
             </Link>
-            <div className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full px-4 py-2">
+            <div className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full px-4 py-2 flex items-center gap-2">
+              <img src="/book_spot.svg" alt="Blog" className="h-5 w-5" />
               <span className="text-white font-semibold">Le blog</span>
             </div>
           </div>
@@ -271,13 +272,24 @@ export default function HomePage() {
                   </div>
                   {/* Affluence */}
                   <div className="mb-2">
-                    <span className="text-gray-400 text-sm">Affluence prévue: Élevée</span>
+                    <span className="text-gray-400 text-sm">
+                      Affluence prévue: {article.affluence}
+                    </span>
                   </div>
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-700 rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
-                      style={{ width: `${75 + (index * 5) % 20}%` }}
+                      className={`h-2 rounded-full bg-gradient-to-r ${
+                        article.affluence === 'Faible' ? 'from-orange-300 to-orange-400' :
+                        article.affluence === 'Moyenne' ? 'from-orange-400 to-orange-500' :
+                        'from-orange-500 to-orange-600'
+                      }`}
+                      style={{
+                        width:
+                          article.affluence === 'Faible' ? '33%' :
+                          article.affluence === 'Moyenne' ? '66%' :
+                          '100%'
+                      }}
                     ></div>
                   </div>
                 </div>
