@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client' // ✅ BON chemin !
 
 import { useDarkMode } from '@/context/DarkModeContext'
+import Link from 'next/link' 
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -171,6 +172,7 @@ export default function HomePage() {
       <div className="px-4 pb-24">
         <div className="space-y-6">
           {filteredArticles.map((article, index) => (
+            <Link key={article.id} href={`/articles/${article.id}`}>
             <div key={article.id} className="bg-gray-900/90 rounded-3xl overflow-hidden">
               {/* Media Section */}
               <div className="relative h-40 bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -267,6 +269,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+            </Link>
           ))}
           {filteredArticles.length === 0 && (
             <p className="text-center text-gray-400 mt-10">Aucun article trouvé pour cette catégorie.</p>

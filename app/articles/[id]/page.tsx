@@ -15,13 +15,20 @@ export default function ArticleDetail() {
   const [comments, setComments] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [mounted, setMounted] = useState(false)
-  const name = currentUser?.user_metadata?.name
-const [content, setContent] = useState('')
-const fullName = currentUser?.user_metadata?.name || 'Utilisateur'
-
+  const [content, setContent] = useState('')
 
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      setCurrentUser(user)
+    }
+    fetchUser()
   }, [])
 
   useEffect(() => {
@@ -33,209 +40,296 @@ const fullName = currentUser?.user_metadata?.name || 'Utilisateur'
         .single()
       setArticle(data)
     }
+
     if (id) fetchArticle()
   }, [id])
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setCurrentUser(user)
+  const fetchComments = async () => {
+    const { data: commentsData, error } = await supabase
+      .from('comments')
+      .select('id, content, created_at, article_id, user_id, likes, name')
+      .eq('article_id', articleId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Erreur fetch comments:', error)
+      return
     }
 
-    fetchUser()
-  }, [])
-   const fetchComments = async () => {
-      const { data: commentsData } = await supabase
-        .from('comments')
-        .select('*')
-        .eq('article_id', articleId)
-        .order('created_at', { ascending: false })
+    // Ajouter info like par utilisateur
+    const enriched = await Promise.all(
+      commentsData.map(async (comment) => {
+        const { data: like } = await supabase
+          .from('comment_likes')
+          .select('id')
+          .eq('comment_id', comment.id)
+          .eq('user_id', currentUser?.id)
+          .single()
 
-      setComments(commentsData || [])
+        return {
+          ...comment,
+          likedByCurrentUser: !!like,
+        }
+      })
+    )
+
+    setComments(enriched)
+  }
+
+
+const toggleLike = async (commentId: string, liked: boolean) => {
+  if (!currentUser) return
+
+  // 1. Récupère le commentaire pour connaître le nombre de likes actuel
+  const { data: comment, error: fetchError } = await supabase
+    .from('comments')
+    .select('likes')
+    .eq('id', commentId)
+    .single()
+
+  if (fetchError || !comment) {
+    console.error('Erreur récupération du commentaire:', fetchError)
+    return
+  }
+
+  const currentLikes = comment.likes || 0
+
+  if (liked) {
+    // DISLIKE
+    const { error: deleteError } = await supabase
+      .from('comment_likes')
+      .delete()
+      .eq('comment_id', commentId)
+      .eq('user_id', currentUser.id)
+
+    if (deleteError) {
+      console.error('Erreur dislike:', deleteError)
+      return
     }
 
+    await supabase
+      .from('comments')
+      .update({ likes: currentLikes > 0 ? currentLikes - 1 : 0 })
+      .eq('id', commentId)
+
+  } else {
+    // LIKE
+    const { error: insertError } = await supabase
+      .from('comment_likes')
+      .insert({
+        comment_id: commentId,
+        user_id: currentUser.id,
+      })
+
+    if (insertError) {
+      console.error('Erreur like:', insertError)
+      return
+    }
+
+    await supabase
+      .from('comments')
+      .update({ likes: currentLikes + 1 })
+      .eq('id', commentId)
+  }
+
+  fetchComments()
+}
+
+
+
+
+  
 
   useEffect(() => {
-   
-
     if (id) fetchComments()
   }, [id])
 
-  // 👉 Place tous tes return APRÈS les useEffect
-  if (!mounted || !article) return <p className="text-center mt-10">Chargement...</p>
-
-    
-
   const likeComment = async (commentId: string) => {
-  const { data, error } = await supabase.rpc('increment_like', {
-    comment_id: commentId,
-  })
+    const { error } = await supabase.rpc('increment_like', {
+      comment_id: commentId,
+    })
 
-  if (!error) {
-    fetchComments() // 🔁 recharge pour mettre à jour les likes
-  } else {
-    console.error('Erreur like:', error)
+    if (!error) {
+      fetchComments()
+    } else {
+      console.error('Erreur like:', error)
+    }
   }
-}
 
-const deleteComment = async (commentId: string) => {
-  const { error } = await supabase
-    .from('comments')
-    .delete()
-    .eq('id', commentId)
+  const deleteComment = async (commentId: string) => {
+    const { error } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', commentId)
 
-  if (!error) {
-    fetchComments()
-  } else {
-    console.error('Erreur suppression:', error)
+    if (!error) {
+      fetchComments()
+    } else {
+      console.error('Erreur suppression:', error)
+    }
   }
-}
-  return (
-    <div className="min-h-screen bg-white px-4 pt-8 pb-24 text-black">
-  {/* Flèche de retour */}
-  <button
-    onClick={() => router.back()}
-    className="mb-4 text-xl"
-  >
-    ←
-  </button>
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🔎 currentUser:', currentUser)
 
-  
-    {/* Image */}
-    <div className=" overflow-hidden rounded-t-2xl ">
-      <img
-        src={article.img || '/default.jpg'}
-        alt={article.title}
-        className="w-full h-96 object-cover"
-      />
-    </div>
+    e.preventDefault()
+    const trimmedContent = content.trim()
+    if (!trimmedContent) return
 
-    <div className="bg-gray-100 p-4 rounded-b-2xl mb-6">
+    const first = currentUser?.user_metadata?.first_name
+    const last = currentUser?.user_metadata?.last_name
+    const name = `${first ?? ''} ${last ?? ''}`.trim() || 'Utilisateur'
 
-    {/* Titre */}
-    <h1 className="text-2xl font-bold mb-4">{article.title}</h1>
-
-    {/* Tags (catégories) */}
-    <div className="flex flex-wrap gap-2 mb-4">
-      {article.categorie?.split(',').map((tag: string, i: number) => (
-        <span key={i} className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-          {tag.trim()}
-        </span>
-      ))}
-    </div>
-
-    {/* Infos principales */}
-    <div className="space-y-2 text-sm mb-6">
-      <p>📍 <span className="font-medium">{article.adress}</span></p>
-    </div>
-
-  
-    <p className="text-sm font-medium mb-2">
-      Affluence prévu : <span className="font-bold">{article.affluence || 'Élevée'}</span>
-    </p>
-    <div className="w-full h-2 rounded-full bg-gray-300 overflow-hidden">
-      <div
-        className="h-full bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500"
-        style={{ width: article.affluence === 'Faible' ? '25%' : article.affluence === 'Moyenne' ? '60%' : '85%' }}
-      />
-    </div>
-  </div>
-
-  {/* Description détaillée */}
-  <div className="bg-gray-50 p-5 rounded-2xl">
-    <h2 className="text-lg font-semibold mb-2">Description</h2>
-    <p className="text-gray-800 text-sm">
-      {article.description}
-    </p>
-  </div>
-
- {/* Commentaires */}
-  <div className="mt-10 bg-gray-100 p-5 rounded-2xl">
-    <h2 className="text-xl font-semibold mb-4">Commentaires</h2>
-
-    {/* ✅ Formulaire de commentaire */}
-    <form
-      onSubmit={async (e) => {
-  e.preventDefault()
-  const trimmedContent = content.trim()
-  if (!trimmedContent) return
-
-  const prenom = currentUser?.user_metadata?.prenom
-  const nom = currentUser?.user_metadata?.nom
-
-  const { data, error } = await supabase
-    .from('comments')
-    .insert({
+    const { error } = await supabase.from('comments').insert({
       content: trimmedContent,
       user_id: currentUser.id,
       article_id: articleId,
-      name: fullName,
+      name,
     })
-    .select()
 
-
-
-  if (!error && data && data.length > 0) {
-    setContent('') // reset le champ
-   setComments([
-  {
-    ...data[0],
-    name: `${prenom} ${nom}`,
-  },
-  ...comments,
-])
-
-  } else {
-    console.error('Erreur Supabase insert commentaire:', JSON.stringify(error, null, 2))
-
+    if (!error) {
+      setContent('')
+      fetchComments()
+    } else {
+      console.error('Erreur Supabase insert commentaire:', JSON.stringify(error, null, 2))
+    }
   }
-}}
 
-      className="mb-6"
-    >
-      <input
-        name="content"
-        placeholder="Ajouter un commentaire..."
-        className="w-full border p-2 rounded"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
+  if (!mounted || !article) return <p className="text-center mt-10">Chargement...</p>
 
+  return (
+    <div className="min-h-screen bg-white px-4 pt-8 pb-24 text-black">
+      <button onClick={() => router.back()} className="mb-4 text-xl">←</button>
 
-      <button
-        type="submit"
-        disabled={!content.trim()}
-        className="bg-purple-500 text-white px-4 py-2 rounded disabled:opacity-50"
-      >
-        Poster
-      </button>
+      {/* Image */}
+      <div className="overflow-hidden rounded-t-2xl">
+        <img
+          src={article.img || '/default.jpg'}
+          alt={article.title}
+          className="w-full h-96 object-cover"
+        />
+      </div>
 
-    </form>
+      {/* Détails */}
+      <div className="bg-gray-100 p-4 rounded-b-2xl mb-6">
+        <h1 className="text-2xl font-bold mb-4">{article.title}</h1>
 
-    {/* 🗨️ Liste des commentaires */}
-    {comments.map((c) => (
-      <div key={c.id} className="flex items-start justify-between mb-4">
-        <div>
-          <p className="font-semibold">{c.name || 'Utilisateur'}</p>
-          <p>{c.content}</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {article.categorie?.split(',').map((tag: string, i: number) => (
+            <span
+              key={i}
+              className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium"
+            >
+              {tag.trim()}
+            </span>
+          ))}
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => likeComment(c.id)}>❤️ {c.likes}</button>
-          {c.user_id === currentUser?.id && (
-            <button onClick={() => deleteComment(c.id)}>⋯</button>
-          )}
+
+        <div className="space-y-2 text-sm mb-6">
+          <p>📍 <span className="font-medium">{article.adress}</span></p>
+        </div>
+
+        <p className="text-sm font-medium mb-2">
+          Affluence prévue : <span className="font-bold">{article.affluence || 'Élevée'}</span>
+        </p>
+        <div className="w-full h-2 rounded-full bg-gray-300 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500"
+            style={{
+              width:
+                article.affluence === 'Faible'
+                  ? '25%'
+                  : article.affluence === 'Moyenne'
+                  ? '60%'
+                  : '85%',
+            }}
+          />
         </div>
       </div>
-    ))}
 
-  </div>
+      {/* Description */}
+      <div className="bg-gray-50 p-5 rounded-2xl">
+        <h2 className="text-lg font-semibold mb-2">Description</h2>
+        <p className="text-gray-800 text-sm">{article.description}</p>
+      </div>
+
+      {/* Commentaires */}
+      <div className="mt-10 bg-gray-100 p-5 rounded-2xl">
+        <h2 className="text-xl font-semibold mb-4">Commentaires</h2>
+
+        <form onSubmit={handleSubmit} className="mb-6">
+          <input
+            name="content"
+            placeholder="Ajouter un commentaire..."
+            className="w-full border p-2 rounded"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <button
+            type="submit"
+            disabled={!content.trim()}
+            className="bg-purple-500 text-white px-4 py-2 rounded disabled:opacity-50 mt-2"
+          >
+            Poster
+          </button>
+        </form>
+
+        {comments.map((c) => (
+          <div key={c.id} className="flex items-start justify-between mb-4">
+            <div>
+              <p className="font-semibold">{c.name}</p>
+
+              <p>{c.content}</p>
+            </div>
+            <div className="flex items-center gap-2">
+    <button
+  onClick={() => toggleLike(c.id, c.likedByCurrentUser)}
+  className="flex items-center gap-1"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-6 h-6 transition-colors duration-200 ${
+      c.likedByCurrentUser ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+    }`}
+    fill={c.likedByCurrentUser ? 'currentColor' : 'none'}
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+    />
+  </svg>
+  <span className="text-sm">{c.likes}</span>
+</button>
 
 
+              {c.user_id === currentUser?.id && (
+<button onClick={() => deleteComment(c.id)}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-5 h-5 text-gray-500 hover:text-red-500 transition-colors duration-200"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 00-1-1H8a1 1 0 00-1 1h10z"
+    />
+  </svg>
+</button>
 
-  
-</div>
+
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
