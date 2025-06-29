@@ -9,19 +9,24 @@ const supabase = createClient(
 
 export default function PropositionsPage() {
   const [articles, setArticles] = useState<any[]>([])
+  const [articleEnCours, setArticleEnCours] = useState<any | null>(null)
+
 
   useEffect(() => {
     fetchArticles()
   }, [])
 
-  const fetchArticles = async () => {
-    const { data } = await supabase
-      .from('articles')
-      .select('*')
-      .eq('status', false) // 👈 uniquement les non validés
+const fetchArticles = async () => {
+  const { data } = await supabase
+    .from('articles_with_user_email')
+    .select('*')
+    .eq('status', false)
 
-    setArticles(data || [])
-  }
+  setArticles(data || [])
+}
+
+
+
 
   const validerArticle = async (id: string) => {
     await supabase.from('articles').update({ status: true }).eq('id', id)
@@ -46,7 +51,71 @@ export default function PropositionsPage() {
               <h2 className="text-xl font-semibold">{article.title}</h2>
               <p>{article.description}</p>
               <p className="text-sm text-gray-500">{article.adress} - {article.categorie}</p>
+              <p className="text-sm text-gray-500">
+                Proposé par : {article.user_email ?? 'Utilisateur inconnu'}
+              </p>
+
+
               {article.img && <img src={article.img} alt={article.title} className="w-full max-w-md mt-2" />}
+              {articleEnCours && (
+  <div className="mt-8 border-t pt-6">
+    <h2 className="text-xl font-bold mb-4">Modifier le spot</h2>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault()
+        await supabase
+          .from('articles')
+          .update(articleEnCours)
+          .eq('id', articleEnCours.id)
+        setArticleEnCours(null)
+        fetchArticles()
+      }}
+      className="space-y-4"
+    >
+      <input
+        value={articleEnCours.title}
+        onChange={(e) => setArticleEnCours({ ...articleEnCours, title: e.target.value })}
+        className="w-full border p-2 rounded"
+        placeholder="Titre"
+      />
+      <input
+        value={articleEnCours.description}
+        onChange={(e) => setArticleEnCours({ ...articleEnCours, description: e.target.value })}
+        className="w-full border p-2 rounded"
+        placeholder="Description"
+      />
+      <input
+        value={articleEnCours.adress}
+        onChange={(e) => setArticleEnCours({ ...articleEnCours, adress: e.target.value })}
+        className="w-full border p-2 rounded"
+        placeholder="Adresse"
+      />
+      <input
+        value={articleEnCours.categorie}
+        onChange={(e) => setArticleEnCours({ ...articleEnCours, categorie: e.target.value })}
+        className="w-full border p-2 rounded"
+        placeholder="Catégorie"
+      />
+
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Enregistrer
+        </button>
+        <button
+          type="button"
+          onClick={() => setArticleEnCours(null)}
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+
 
               <div className="mt-4 flex gap-2">
                 <button
@@ -54,6 +123,12 @@ export default function PropositionsPage() {
                   className="bg-green-500 text-white px-3 py-1 rounded"
                 >
                   Valider
+                </button>
+                <button
+                  onClick={() => setArticleEnCours(article)}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded"
+                >
+                  Modifier
                 </button>
                 <button
                   onClick={() => refuserArticle(article.id)}

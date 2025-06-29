@@ -5,6 +5,9 @@ import { DarkModeProvider } from '@/context/DarkModeContext'
 export const metadata: Metadata = {
   title: '',
   description: 'application web de référencement des spots pour les fêtes',
+  icons: {
+    icon: '/favicon_spotIn.svg',
+  }
 }
 
 export default function RootLayout({

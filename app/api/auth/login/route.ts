@@ -1,35 +1,20 @@
+// app/api/auth/login/route.ts
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
 
-export async function getUser() {
+export async function POST(request: Request) {
   const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
-  if (error || !user) {
-    return null
-  }
-  
-  return user
-}
+  const body = await request.json()
+  const { email, password } = body
 
-export async function requireAuth() {
-  const user = await getUser()
-  
-  if (!user) {
-    redirect('/login')
-  }
-  
-  return user
-}
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
 
-export async function getSession() {
-  const supabase = await createClient()
-  const { data: { session }, error } = await supabase.auth.getSession()
-  
   if (error) {
-    console.error('Error getting session:', error)
-    return null
+    return NextResponse.json({ error: error.message }, { status: 401 })
   }
-  
-  return session
+
+  return NextResponse.json({ user: data.user })
 }
