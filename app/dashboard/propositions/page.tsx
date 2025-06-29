@@ -1,13 +1,10 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const supabase = createClient() 
 
 export default function PropositionsPage() {
   const [articles, setArticles] = useState<any[]>([])
@@ -18,30 +15,49 @@ export default function PropositionsPage() {
 
 useEffect(() => {
   const checkVisibility = async () => {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+  console.log('▶ Début du check de visibilité')
 
-    if (userError || !user) {
-      router.push('/') // pas connecté
-      return
-    }
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
 
-    const { data, error } = await supabase
-      .from('users')
-      .select('visibility')
-      .eq('id', user.id)
-      .single()
+  console.log('👤 Utilisateur :', user)
+  if (userError) console.error('❌ Erreur user:', userError)
 
-    if (error || !data || data.visibility !== 1) {
-      router.push('/') // pas admin => redirection accueil
-    }
+  if (userError || !user) {
+    console.log('⛔ Pas connecté, redirection')
+    router.push('/')
+    return
   }
 
+  const { data, error } = await supabase
+    .from('users')
+    .select('visibility')
+    .eq('id', user.id)
+    .single()
+
+  console.log('📦 Résultat de la requête :', data)
+  if (error) console.error('❌ Erreur requête Supabase:', error)
+
+  if (!data) {
+    console.log('❌ Pas de données reçues')
+    router.push('/')
+    return
+  }
+
+  const visibility = Number(data.visibility)
+  console.log('🔍 Visibilité reçue :', visibility, '| type :', typeof data.visibility)
+
+  if (visibility !== 1) {
+    console.log('❌ Pas admin, redirection')
+    router.push('/')
+  } else {
+    console.log('✅ Accès autorisé')
+  }
+}
   checkVisibility()
 }, [router])
-
 
   useEffect(() => {
     fetchArticles()
