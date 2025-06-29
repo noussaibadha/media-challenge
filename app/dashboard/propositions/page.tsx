@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +13,35 @@ export default function PropositionsPage() {
   const [articles, setArticles] = useState<any[]>([])
   const [articleEnCours, setArticleEnCours] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const router = useRouter()
+
+useEffect(() => {
+  const checkVisibility = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      router.push('/') // pas connecté
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('visibility')
+      .eq('id', user.id)
+      .single()
+
+    if (error || !data || data.visibility !== 1) {
+      router.push('/') // pas admin => redirection accueil
+    }
+  }
+
+  checkVisibility()
+}, [router])
+
 
   useEffect(() => {
     fetchArticles()

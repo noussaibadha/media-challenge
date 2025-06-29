@@ -1,4 +1,3 @@
-// app/dashboard/page.tsx
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
@@ -13,21 +12,35 @@ export default async function DashboardPage() {
       cookies: {
         get(name: string) {
           const c = cookieStore.get(name)
-          return c ? c.value : undefined
+          return c?.value
         }
       }
     }
   )
 
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError
+  } = await supabase.auth.getUser()
 
-  if (error || !user) {
-    redirect('/login')
+  if (authError || !user) {
+    redirect('/auth/login')
+  }
+
+  // ✅ Récupère visibility depuis la table users
+  const { data: userRow, error: rowError } = await supabase
+    .from('users')
+    .select('visibility')
+    .eq('id', user.id)
+    .single()
+
+  if (rowError || !userRow || userRow.visibility !== 1) {
+    redirect('/') // redirige vers l'accueil si pas admin
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="container mx-auto px-6 py-8">
         {/* Header avec animation */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-4 shadow-lg animate-pulse">

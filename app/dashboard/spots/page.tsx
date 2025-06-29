@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,6 +19,34 @@ export default function SpotsPage() {
   const [categories, setCategories] = useState<string[]>([])
   const [affluences, setAffluences] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+
+  // Vérification des droits d'accès
+  useEffect(() => {
+    const checkVisibility = async () => {
+      const {
+        data: { user },
+        error: userError
+      } = await supabase.auth.getUser()
+
+      if (userError || !user) {
+        router.push('/auth/login')
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('visibility')
+        .eq('id', user.id)
+        .single()
+
+      if (error || !data || data.visibility !== 1) {
+        router.push('/') // redirection si pas admin
+      }
+    }
+
+    checkVisibility()
+  }, [router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -61,7 +90,7 @@ export default function SpotsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
+    
     try {
       let imageUrl = ''
 
@@ -122,7 +151,7 @@ export default function SpotsPage() {
   }
 
   const categoryOptions = [
-    'Rock', 'Rap', 'Electro', 'Jazz', 'Rnb', 'Pop',
+    'Rock', 'Rap', 'Electro', 'Jazz', 'Rnb', 'Pop', 
     'Reggae', 'Techno', 'Classique', 'Hip-hop', 'Metal', 'Kpop'
   ]
 
@@ -149,7 +178,7 @@ export default function SpotsPage() {
         {/* Formulaire */}
         <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 space-y-6 border border-gray-100 dark:border-gray-700">
-
+            
             {/* Titre */}
             <div className="space-y-2">
               <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -214,9 +243,9 @@ export default function SpotsPage() {
                 </svg>
                 Genres musicaux
               </label>
-              <select
-                onChange={handleCategoryChange}
-                className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 dark:border-purple-600 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900 outline-none transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              <select 
+                onChange={handleCategoryChange} 
+                className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 dark:border-purple-600 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900 outline-none transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
                 value=""
               >
                 <option value="">Sélectionnez un genre</option>
@@ -224,7 +253,7 @@ export default function SpotsPage() {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-
+              
               {categories.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat, index) => (
@@ -253,9 +282,9 @@ export default function SpotsPage() {
                 </svg>
                 Niveau d'affluence
               </label>
-              <select
-                onChange={handleAffluenceChange}
-                className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 dark:border-purple-600 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900 outline-none transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              <select 
+                onChange={handleAffluenceChange} 
+                className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 dark:border-purple-600 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900 outline-none transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
                 value=""
               >
                 <option value="">Sélectionnez le niveau d'affluence</option>
@@ -263,7 +292,7 @@ export default function SpotsPage() {
                   <option key={aff} value={aff}>{aff}</option>
                 ))}
               </select>
-
+              
               {affluences.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {affluences.map((aff, index) => (
@@ -293,7 +322,7 @@ export default function SpotsPage() {
                 Image du spot
               </label>
               <p className="text-xs text-gray-500 dark:text-gray-400">Ajoutez une photo qui donne envie de découvrir ce lieu !</p>
-
+              
               <div className="relative">
                 <input
                   type="file"
@@ -333,8 +362,8 @@ export default function SpotsPage() {
             </div>
 
             {/* Bouton de soumission */}
-            <button
-              type="submit"
+            <button 
+              type="submit" 
               disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
@@ -360,4 +389,3 @@ export default function SpotsPage() {
       </div>
     </div>
   )
-}

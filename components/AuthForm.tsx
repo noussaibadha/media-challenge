@@ -35,37 +35,27 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         if (error) throw error;
 
-        // Facultatif : stocker l'utilisateur si besoin
-        if (data?.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
+        const userId = data.user?.id;
+        if (!userId) throw new Error("Utilisateur introuvable");
 
-        if (data?.session) {
-          localStorage.setItem('token', data.session.access_token);
-        }
-
-        // ⏳ Attends un peu que Supabase synchronise la session
-        await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms suffit souvent
-
-        // Récupérer les données de l'utilisateur depuis la table users
+        // On récupère visibility dans la table users
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('visibility')
-          .eq('id', data.user?.id)
+          .eq('id', userId)
           .single();
 
-        if (userError) {
-          console.error('Erreur lors de la récupération des données utilisateur:', userError);
-          throw new Error('Impossible de récupérer les informations utilisateur');
+        if (userError || !userData) {
+          throw new Error("Impossible de récupérer la visibilité");
         }
 
-        // Redirection basée sur le rôle (visibility)
-        if (userData?.visibility === 1) {
-          router.push('/dashboard');
+        // Redirection selon visibilité
+        if (userData.visibility === 1) {
+          router.push('/dashboard'); // admin
         } else {
-          router.push('/');
+          router.push('/'); // utilisateur
         }
-      } else {
+      }else {
         // Signup
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -90,7 +80,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             {
               id: data.user.id,
               name: lastName,
-              visibility: 0, // Par défaut, nouveau utilisateur a le rôle 0
+              visibility: 0,
             },
           ])
 
@@ -118,7 +108,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         setError("Cet email est déjà utilisé.");
       } else {
         setError(errorMsg);
-        // Ou, si tu veux toujours afficher "Une erreur est survenue" pour les erreurs non gérées :
+        // Ou, si tu veux toujours afficher "Une erreur est survenue" pour les erreurs non gérées :
         // setError("Une erreur est survenue");
       }
     }
