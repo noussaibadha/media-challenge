@@ -44,7 +44,7 @@ export default function ResponsiveNavbar() {
       <nav className="hidden md:flex bg-[#F1F1F1] dark:bg-[#242424] shadow-md py-4 px-6 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto flex justify-between items-center">
           <Image
-            src="/logoMediaChallenge6.webp" // adapte le nom si nécessaire
+            src="/logo_spotin_blanc.svg" // adapte le nom si nécessaire
             alt="Logo SpotIn"
             width={90} // ajuste la taille selon ta maquette
             height={30}
@@ -62,6 +62,10 @@ export default function ResponsiveNavbar() {
                 {link.label}
               </Link>
             ))}
+            <Link href="/blog" className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full px-4 py-2 flex items-center gap-2">
+              <img src="/book_spot.svg" alt="Blog" className="h-5 w-5" />
+              <span className="text-white font-semibold">Le blog</span>
+            </Link>
           </div>
         </div>
       </nav>
