@@ -16,9 +16,10 @@ export default function PropositionPage() {
     title: '',
     description: '',
     adress: '',
-    categorie: '',
+    categories: [] as string[], // ← c'est un tableau
     affluence: ''
   })
+
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
@@ -69,12 +70,17 @@ export default function PropositionPage() {
     }
 
     const { error: insertError } = await supabase.from('articles').insert([
-      {
-        ...formData,
-        img: imageUrl,
-        status: false
-      }
-    ])
+    {
+      title: formData.title,
+      description: formData.description,
+      adress: formData.adress,
+      categorie: formData.categories, // ← c’est maintenant un tableau
+      affluence: formData.affluence,
+      img: imageUrl,
+      status: false
+    }
+  ])
+
 
     if (insertError) {
       alert('Erreur : ' + insertError.message)
@@ -84,9 +90,10 @@ export default function PropositionPage() {
         title: '',
         description: '',
         adress: '',
-        categorie: '',
+        categories: [], // ← tableau vide
         affluence: ''
       })
+
       setFile(null)
       setPreviewUrl(null)
     }
@@ -104,6 +111,13 @@ export default function PropositionPage() {
       ? 'bg-[#23232b] border-purple-700 text-white focus:border-purple-400'
       : 'bg-white border-purple-400 text-black focus:border-purple-600'
     }`
+
+
+    const categories = [
+      'Rock', 'Rap', 'Electro', 'Jazz', 'Rnb', 'Pop', 'Reggae',
+      'Techno', 'Classique', 'Hip-hop', 'Metal', 'Kpop'
+    ]
+
 
   return (
     <div className={`min-h-screen flex items-center justify-center transition-colors ${darkMode ? 'bg-[#242424] text-white' : 'bg-white text-black'}`}>
@@ -148,19 +162,51 @@ export default function PropositionPage() {
         />
 
         {/* Catégories */}
-        <label className="block font-semibold mb-1">Catégories</label>
-        <select
-          name="categorie"
-          value={formData.categorie}
-          onChange={handleChange}
-          className={selectClass}
-        >
-          <option value="">Sélectionnez</option>
-          <option value="Bar">Bar</option>
-          <option value="Concert">Concert</option>
-          <option value="Restaurant">Restaurant</option>
-          <option value="Autre">Autre</option>
-        </select>
+      <label className="block font-semibold mb-1">Catégories</label>
+      <select
+        onChange={(e) => {
+          const selected = e.target.value
+          if (selected && !formData.categories.includes(selected)) {
+            setFormData((prev) => ({
+              ...prev,
+              categories: [...prev.categories, selected],
+            }))
+          }
+        }}
+        className={selectClass}
+        value="" // pour éviter qu’un élément reste sélectionné
+      >
+        <option value="">Sélectionnez</option>
+        {categories.map((cat) => (
+          <option key={cat} value={cat}>
+            {cat}
+          </option>
+        ))}
+      </select>
+
+
+      {/* Bulles de catégories sélectionnées */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {formData.categories.map((cat) => (
+          <div key={cat} className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full flex items-center">
+            <span>{cat}</span>
+            <button
+              type="button"
+              onClick={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  categories: prev.categories.filter((c) => c !== cat),
+                }))
+              }
+              className="ml-2 text-purple-600 hover:text-red-600"
+            >
+              ✖
+            </button>
+          </div>
+        ))}
+      </div>
+
+
 
         {/* Affluence */}
         <label className="block font-semibold mb-1">Affluence</label>
