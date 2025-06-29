@@ -8,7 +8,7 @@ import { useDarkMode } from '@/context/DarkModeContext'
 const supabase = createClient()
 
 export default function LikesPage() {
-  const [articles, setArticles] = useState<unknown[]>([])
+  const [articles, setArticles] = useState<any[]>([])
   const [likedIds, setLikedIds] = useState<string[]>([])
   const [user, setUser] = useState<unknown | null>(null)
   const { darkMode, toggleDarkMode } = useDarkMode()
