@@ -11,15 +11,37 @@ export default function SpotsPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    adress: '',
-    categorie: '',
-    affluence: ''
+    adress: ''
   })
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [categories, setCategories] = useState<string[]>([])
+  const [affluences, setAffluences] = useState<string[]>([])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+    if (value && !categories.includes(value)) {
+      setCategories(prev => [...prev, value])
+    }
+  }
+
+  const removeCategory = (catToRemove: string) => {
+    setCategories(prev => prev.filter(cat => cat !== catToRemove))
+  }
+
+  const handleAffluenceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+    if (value && !affluences.includes(value)) {
+      setAffluences(prev => [...prev, value])
+    }
+  }
+
+  const removeAffluence = (affToRemove: string) => {
+    setAffluences(prev => prev.filter(aff => aff !== affToRemove))
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,11 +61,10 @@ export default function SpotsPage() {
     e.preventDefault()
     let imageUrl = ''
 
-    // 🔹 Upload image si elle existe
     if (file) {
       const cleanedName = file.name
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[̀-ͯ]/g, '')
         .replace(/\s+/g, '-')
         .replace(/[^a-zA-Z0-9.\-_]/g, '')
 
@@ -64,14 +85,14 @@ export default function SpotsPage() {
       imageUrl = publicUrlData.publicUrl
     }
 
-    // 🔹 Enregistrement dans la table "articles"
     const { error: insertError } = await supabase.from('articles').insert([
       {
         ...formData,
+        categorie: categories.join(', '),
+        affluence: affluences.join(', '),
         img: imageUrl,
         status: true
-        }
-
+      }
     ])
 
     if (insertError) {
@@ -81,10 +102,10 @@ export default function SpotsPage() {
       setFormData({
         title: '',
         description: '',
-        adress: '',
-        categorie: '',
-        affluence: ''
+        adress: ''
       })
+      setCategories([])
+      setAffluences([])
       setFile(null)
       setPreviewUrl(null)
     }
@@ -92,85 +113,121 @@ export default function SpotsPage() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white text-black dark:bg-white dark:text-black p-8 rounded-xl shadow max-w-md mx-auto space-y-6">
-  <h2 className="text-2xl font-bold uppercase text-gray-800">Ajoutez un spot</h2>
+      <h2 className="text-2xl font-bold uppercase text-gray-800">Ajoutez un spot</h2>
 
-  <div>
-    <label className="block font-semibold">Titre</label>
-    <input
-      name="title"
-      placeholder="Choisissez un titre"
-      onChange={handleChange}
-      value={formData.title}
-      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
-    />
-  </div>
+      <div>
+        <label className="block font-semibold">Titre</label>
+        <input
+          name="title"
+          placeholder="Choisissez un titre"
+          onChange={handleChange}
+          value={formData.title}
+          className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+        />
+      </div>
 
-  <div>
-    <label className="block font-semibold">Description</label>
-    <input
-      name="description"
-      placeholder="Choisissez une description"
-      onChange={handleChange}
-      value={formData.description}
-      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
-    />
-  </div>
+      <div>
+        <label className="block font-semibold">Description</label>
+        <input
+          name="description"
+          placeholder="Choisissez une description"
+          onChange={handleChange}
+          value={formData.description}
+          className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+        />
+      </div>
 
-  <div>
-    <label className="block font-semibold">Adresse</label>
-    <input
-      name="adress"
-      placeholder="Entrez une adresse"
-      onChange={handleChange}
-      value={formData.adress}
-      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
-    />
-  </div>
+      <div>
+        <label className="block font-semibold">Adresse</label>
+        <input
+          name="adress"
+          placeholder="Entrez une adresse"
+          onChange={handleChange}
+          value={formData.adress}
+          className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+        />
+      </div>
 
-  <div>
-    <label className="block font-semibold">Catégories</label>
-    <input
-      name="categorie"
-      placeholder="Sélectionnez"
-      onChange={handleChange}
-      value={formData.categorie}
-      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
-    />
-  </div>
+      <div>
+        <label className="block font-semibold">Catégories</label>
+        <select onChange={handleCategoryChange} className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none" value="">
+          <option value="">Sélectionnez</option>
+          <option value="Rock">Rock</option>
+          <option value="Rap">Rap</option>
+          <option value="Electro">Electro</option>
+          <option value="Jazz">Jazz</option>
+          <option value="Rnb">Rnb</option>
+          <option value="Pop">Pop</option>
+          <option value="Reggae">Reggae</option>
+          <option value="Techno">Techno</option>
+          <option value="Classique">Classique</option>
+          <option value="Hip-hop">Hip-Hop</option>
+          <option value="Metal">Métal</option>
+          <option value="Kpop">Kpop</option>
+        </select>
+      </div>
 
-  <div>
-    <label className="block font-semibold">Affluence</label>
-    <input
-      name="affluence"
-      placeholder="Sélectionnez"
-      onChange={handleChange}
-      value={formData.affluence}
-      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
-    />
-  </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {categories.map((cat, index) => (
+          <div key={index} className="bg-purple-500 text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm">
+            {cat}
+            <button
+              type="button"
+              onClick={() => removeCategory(cat)}
+              className="text-white hover:text-gray-200"
+            >
+              &times;
+            </button>
+          </div>
+        ))}
+      </div>
 
-  <div>
-    <label className="block font-semibold">Fichier</label>
-    <p className="text-xs text-gray-500 mb-1">Montre le spot en image ou en vidéo pour donner envie d’y être !</p>
-    <input
-      type="file"
-      accept="image/*"
-      onChange={handleFileChange}
-      className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
-    />
-  </div>
+      <div>
+        <label className="block font-semibold">Affluence</label>
+        <select onChange={handleAffluenceChange} className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none" value="">
+          <option value="">Sélectionnez</option>
+          <option value="Faible">Faible</option>
+          <option value="Moyenne">Moyenne</option>
+          <option value="Élevée">Élevée</option>
+        </select>
+      </div>
 
-  {previewUrl && (
-    <div className="mt-4">
-      <p className="text-sm text-gray-500">Aperçu de l’image :</p>
-      <img src={previewUrl} alt="Prévisualisation" className="w-60 rounded shadow mt-2" />
-    </div>
-  )}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {affluences.map((aff, index) => (
+          <div key={index} className="bg-purple-400 text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm">
+            {aff}
+            <button
+              type="button"
+              onClick={() => removeAffluence(aff)}
+              className="text-white hover:text-gray-200"
+            >
+              &times;
+            </button>
+          </div>
+        ))}
+      </div>
 
-  <button type="submit" className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900">
-    Ajouter un spot
-  </button>
-</form>
+      <div>
+        <label className="block font-semibold">Fichier</label>
+        <p className="text-xs text-gray-500 mb-1">Montre le spot en image ou en vidéo pour donner envie d’y être !</p>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="w-full p-3 rounded-full border-2 border-purple-500 focus:outline-none"
+        />
+      </div>
 
+      {previewUrl && (
+        <div className="mt-4">
+          <p className="text-sm text-gray-500">Aperçu de l’image :</p>
+          <img src={previewUrl} alt="Prévisualisation" className="w-60 rounded shadow mt-2" />
+        </div>
+      )}
+
+      <button type="submit" className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-900">
+        Ajouter un spot
+      </button>
+    </form>
   )
 }
