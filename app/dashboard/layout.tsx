@@ -9,10 +9,10 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-gray-50 min-h-screen pt-16 md:pt-0 mb-16 md:mb-0">
+    <div className="min-h-screen">
       <DarkModeProvider>
         <DashboardNavbar />
-        <main className="p-4">{children}</main>
+        <main className="">{children}</main>
       </DarkModeProvider>
     </div>
   )
