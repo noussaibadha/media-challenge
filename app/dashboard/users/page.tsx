@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 type UserData = {
   id: string
@@ -10,102 +11,138 @@ type UserData = {
   created_at: string
   is_verified: boolean
   role: 'admin' | 'utilisateur'
-  visibility: number // 👈 ici
+  visibility: number
 }
 
-
 export default function UsersPage() {
+  const router = useRouter()
   const [users, setUsers] = useState<UserData[]>([])
   const supabase = createClient()
 
-  const deleteUser = async (userId: string) => {
-  const res = await fetch('/api/users', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ userId }),
-  })
+  // Redirection si pas admin
+  useEffect(() => {
+    const checkVisibility = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
 
-  const result = await res.json()
-
-  if (!res.ok) {
-    console.error('Erreur suppression :', result.error)
-  } else {
-    console.log('Utilisateur supprimé !')
-  }
-}
-
-  
-
-useEffect(() => {
-  const fetchUsers = async () => {
-    const res = await fetch('/api/users')
-
-    try {
-      const json = await res.json()
-
-      if (res.ok) {
-        const formatted = json.map((u: any) => ({
-        id: u.id,
-        name: u.name || '-',
-        email: u.email || '-',
-        created_at: u.created_at,
-        is_verified: u.is_verified || false,
-        role: u.role || 'utilisateur',
-        visibility: u.visibility ?? 0, // 👈 ici
-      }))
-
-        setUsers(formatted)
-      } else {
-        console.error('Erreur API:', json)
+      if (userError || !user) {
+        router.push('/auth/login')
+        return
       }
-    } catch (err) {
-      console.error('Erreur de parsing JSON :', err)
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('visibility')
+        .eq('id', user.id)
+        .single()
+
+      if (error || !data || data.visibility !== 1) {
+        router.push('/')
+      }
     }
-  }
 
-  fetchUsers()
-}, [])
-
+    checkVisibility()
+  }, [router, supabase])
 
 
+  const handleVisibilityChange = async (id: string, visibility: number) => {
+  const role = visibility === 1 ? 'admin' : 'utilisateur'
 
-
-const handleRoleChange = async (id: string, newRole: 'admin' | 'utilisateur') => {
-  const visibility = newRole === 'admin' ? 1 : 0
-
-  // 👉 Mise à jour dans ta table "users"
+  // Mise à jour dans la table "users"
   await supabase
     .from('users')
-    .update({ role: newRole, visibility })
+    .update({ visibility, role })
     .eq('id', id)
 
-  // 👉 Mise à jour dans Supabase Auth (user_metadata)
+  // Mise à jour dans Supabase Auth (user_metadata)
   await fetch('/api/users', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ id, role: newRole }),
+    body: JSON.stringify({ id, role }),
   })
 
-  // Mise à jour locale de l'état (pour affichage)
+  // Mise à jour locale
   setUsers((prev) =>
     prev.map((u) =>
-      u.id === id ? { ...u, role: newRole, visibility } : u
+      u.id === id ? { ...u, visibility, role } : u
     )
   )
 }
 
 
+  // Récupération des utilisateurs
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await fetch('/api/users')
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer ce compte ?')) return
-   await supabase.from('users').delete().eq('id', id)
-    setUsers((prev) => prev.filter((u) => u.id !== id))
+      try {
+        const json = await res.json()
+
+        if (res.ok) {
+          const formatted = json.map((u: any) => ({
+            id: u.id,
+            name: u.name || '-',
+            email: u.email || '-',
+            created_at: u.created_at,
+            is_verified: u.is_verified || false,
+            role: u.role || 'utilisateur',
+            visibility: u.visibility ?? 0,
+          }))
+
+          setUsers(formatted)
+        } else {
+          console.error('Erreur API:', json)
+        }
+      } catch (err) {
+        console.error('Erreur de parsing JSON :', err)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
+  const deleteUser = async (userId: string) => {
+    const res = await fetch('/api/users', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    })
+
+    const result = await res.json()
+
+    if (!res.ok) {
+      console.error('Erreur suppression :', result.error)
+    } else {
+      console.log('Utilisateur supprimé !')
+      setUsers((prev) => prev.filter((u) => u.id !== userId))
+    }
   }
 
+  const handleRoleChange = async (id: string, newRole: 'admin' | 'utilisateur') => {
+    const visibility = newRole === 'admin' ? 1 : 0
+
+    await supabase.from('users').update({ role: newRole, visibility }).eq('id', id)
+
+    await fetch('/api/users', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, role: newRole }),
+    })
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === id ? { ...u, role: newRole, visibility } : u
+      )
+    )
+  }
   return (
     <main className="p-6 max-w-4xl mx-auto">
   <h1 className="text-2xl font-bold mb-4">Utilisateurs</h1>
@@ -134,10 +171,11 @@ const handleRoleChange = async (id: string, newRole: 'admin' | 'utilisateur') =>
             </td>
             <td className="px-4 py-2">
               <select
-                value={user.role}
-                onChange={(e) =>
-                  handleRoleChange(user.id, e.target.value as 'admin' | 'utilisateur')
-                }
+                value={user.visibility === 1 ? 'admin' : 'utilisateur'}
+                onChange={(e) => {
+                  const newVisibility = e.target.value === 'admin' ? 1 : 0
+                  handleVisibilityChange(user.id, newVisibility)
+                }}
                 className="bg-gray-100 dark:bg-gray-800 rounded px-2 py-1"
               >
                 <option value="utilisateur">Utilisateur</option>
