@@ -1,11 +1,44 @@
-// app/page.tsx
 'use client';
 
-import { useDarkMode } from '@/context/DarkModeContext';
+import { useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+import { useDarkMode } from '@/context/DarkModeContext';
+
+// Initialisation du client Supabase (comme dans ton exemple)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function HomePage() {
   const { darkMode, toggleDarkMode } = useDarkMode();
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+
+    // Validation basique
+    if (!email || !email.includes('@')) {
+      setMessage({ text: 'Veuillez saisir une adresse email valide', type: 'error' });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('newsletter')
+        .insert([{ email }]);
+
+      if (error) throw error;
+      setMessage({ text: 'Merci pour votre inscription à la Newsletter !', type: 'success' });
+      setEmail('');
+    } catch (error) {
+      console.error(error);
+      setMessage({ text: 'Une erreur est survenue, veuillez réessayer', type: 'error' });
+    }
+  };
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -23,27 +56,25 @@ export default function HomePage() {
 
         {/* Vidéo principale */}
         <div className="rounded-xl overflow-hidden mb-6">
-        {/* Conteneur pour la vidéo responsive */}
-        <div className="relative w-full pb-[56.25%]"> {/* 16:9 aspect ratio */}
+          {/* Conteneur pour la vidéo responsive */}
+          <div className="relative w-full pb-[56.25%]"> {/* 16:9 aspect ratio */}
             <iframe
-            src="https://www.youtube.com/embed/yBDWSedmHfg?si=7zr4JD-p-RzqPynV"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-            className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/yBDWSedmHfg?si=7zr4JD-p-RzqPynV"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              className="absolute top-0 left-0 w-full h-full"
             />
-        </div>
-        {/* Légende */}
-        <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} px-3 py-2 text-xs sm:text-sm ${
+          </div>
+          {/* Légende */}
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} px-3 py-2 text-xs sm:text-sm ${
             darkMode ? 'text-gray-200' : 'text-gray-800'
-        } border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+          } border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
             <span className="font-semibold">Paris by Night</span> : Fête de la musique 2023 à Paris<br />
             <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Quartier animé et vue sur la tour Eiffel</span>
+          </div>
         </div>
-        </div>
-
-
 
         {/* Sections principales */}
         <div className="grid gap-4 sm:grid-cols-2 mb-6">
@@ -102,10 +133,12 @@ export default function HomePage() {
             <p className="text-white text-sm sm:text-base mb-4">
               Recevez notre alerte hebdo sélection des meilleurs événements musicaux à Paris.
             </p>
-            <form className="flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 placeholder="Votre email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="rounded-lg px-3 py-2 text-sm sm:text-base flex-1 outline-none"
               />
               <button
@@ -115,24 +148,29 @@ export default function HomePage() {
                 Valider
               </button>
             </form>
+            {message && (
+              <p className={`mt-2 text-sm ${message.type === 'success' ? 'text-green-200' : 'text-red-200'}`}>
+                {message.text}
+              </p>
+            )}
           </div>
 
           {/* Carte CTA */}
-            <div className="bg-gradient-to-br from-orange-400 to-pink-400 rounded-xl p-6 shadow-lg">
-                <h3 className="text-white font-bold mb-2 text-lg sm:text-xl">Prêt à explorer Paris ?</h3>
-                <p className="text-white text-sm sm:text-base mb-4">
-                    Découvrez dès maintenant les spots musicaux incontournables de la capitale.
-                </p>
-                <div className="flex justify-center sm:justify-start"> {/* Centré sur mobile, à gauche sur desktop si besoin */}
-                    <Link href="/">
-                    <button
-                        className="bg-white text-black rounded-lg px-6 py-2 font-semibold shadow hover:bg-gray-100 transition"
-                    >
-                        Explorer les spots
-                    </button>
-                    </Link>
-                </div>
+          <div className="bg-gradient-to-br from-orange-400 to-pink-400 rounded-xl p-6 shadow-lg">
+            <h3 className="text-white font-bold mb-2 text-lg sm:text-xl">Prêt à explore Paris ?</h3>
+            <p className="text-white text-sm sm:text-base mb-4">
+              Découvrez dès maintenant les spots musicaux incontournables de la capitale.
+            </p>
+            <div className="flex justify-center sm:justify-start">
+              <Link href="/">
+                <button
+                  className="bg-white text-black rounded-lg px-6 py-2 font-semibold shadow hover:bg-gray-100 transition"
+                >
+                  Explorer les spots
+                </button>
+              </Link>
             </div>
+          </div>
         </div>
       </main>
     </div>
