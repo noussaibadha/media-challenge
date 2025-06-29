@@ -47,7 +47,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         // ⏳ Attends un peu que Supabase synchronise la session
         await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms suffit souvent
 
-        router.push('/dashboard');
+        router.push('/');
       } else {
         // Signup
         const { data, error } = await supabase.auth.signUp({

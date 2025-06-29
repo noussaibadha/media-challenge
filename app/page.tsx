@@ -197,6 +197,7 @@ export default function HomePage() {
         <div className="px-4 pb-24 max-w-4xl mx-auto">
           <div className="space-y-6">
             {filteredArticles.map((article, index) => (
+              <Link key={article.id} href={`/articles/${article.id}`} className="block">
               <div key={article.id} className="bg-gray-900/90 rounded-3xl overflow-hidden">
                 {/* Media Section */}
                 <div className="relative h-40 bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -260,16 +261,8 @@ export default function HomePage() {
                     </svg>
                     <span className="text-white text-sm">{article.adress || '50 Boulevard Voltaire, Paris'}</span>
                   </div>
-                  {/* Opening Hours */}
-                  <div className="flex items-center mb-3">
-                    <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
-                    <span className="text-gray-300 text-sm">Fermeture: 02:00</span>
-                  </div>
-                  {/* Event Info */}
-                  <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 bg-yellow-400 rounded-full mr-3"></div>
-                    <span className="text-gray-300 text-sm">Concert ce soir - Metallica</span>
-                  </div>
+                 
+                  
                   {/* Affluence */}
                   <div className="mb-2">
                     <span className="text-gray-400 text-sm">
@@ -294,13 +287,15 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
+            </Link>
             ))}
+          </div>
             {filteredArticles.length === 0 && (
               <p className="text-center text-gray-400 mt-10">Aucun article trouvé pour cette catégorie.</p>
             )}
           </div>
         </div>
-      </div>
+      
     </>
 
   )
