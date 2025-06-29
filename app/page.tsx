@@ -136,10 +136,10 @@ export default function HomePage() {
             <Link href="/">
               <img src="/logo_spottin.webp" alt="SpotIn Logo" className="h-10 w-auto" />
             </Link>
-            <div className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full px-4 py-2 flex items-center gap-2">
+            <Link href="/blog" className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full px-4 py-2 flex items-center gap-2">
               <img src="/book_spot.svg" alt="Blog" className="h-5 w-5" />
               <span className="text-white font-semibold">Le blog</span>
-            </div>
+            </Link>
           </div>
         </header>
 
