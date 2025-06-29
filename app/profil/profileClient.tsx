@@ -52,6 +52,25 @@ export default function ProfileClient({ user }: { user: UserProps }) {
 }, [user.id])
 
 
+  useEffect(() => {
+  const checkVisibility = async () => {
+    const supabase = createClient()
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('visibility')
+      .eq('id', user.id)
+      .single()
+
+    if (!error && data?.visibility === 1) {
+      setIsAdmin(true)
+    }
+  }
+
+  if (user.id) checkVisibility()
+}, [user.id])
+
+
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -285,7 +304,6 @@ export default function ProfileClient({ user }: { user: UserProps }) {
             Se déconnecter
           </button>
         </div>
-
 
         </div>
       </div>
