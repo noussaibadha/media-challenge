@@ -1,20 +1,19 @@
 export default function Loading() {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-white">
-            <svg className="animate-spin h-16 w-16 text-blue-500" viewBox="0 0 24 24">
-                <circle 
-                className="opacity-25"
-                cx="12" cy="12" r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-                />
-                <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-            </svg>
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+      <div className="relative w-32 h-32 flex items-center justify-center">
+        {/* Cercle avec dégradé orange-violet qui tourne */}
+        <div className="absolute w-full h-full animate-spin rounded-full border-8 border-transparent bg-gradient-to-r from-orange-400 via-purple-500 to-transparent p-[2px]">
+          {/* Masque blanc pour ne garder que le contour */}
+          <div className="w-full h-full rounded-full bg-white"></div>
         </div>
-    )
+        {/* Logo fixe au centre */}
+        <img
+          src="/favicon_spotIn.svg"
+          alt="Logo"
+          className="absolute w-24 h-24 object-contain"
+        />
+      </div>
+    </div>
+  );
 }
