@@ -10,7 +10,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
-
+type Article = {
+  id: string;
+  title: string;
+  description: string;
+  img: string;
+};
 export default function HomePage() {
   const { darkMode, toggleDarkMode } = useDarkMode()
   const [articles, setArticles] = useState<any[]>([])
@@ -40,6 +45,40 @@ export default function HomePage() {
 
     checkSession()
   }, [])
+
+  const handleShare = (article: Article) => {
+    const articleUrl = `${window.location.origin}/articles/${article.id}`;
+    const shareData = {
+      title: article.title,
+      text: article.description,
+      url: articleUrl,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => {
+        // Fallback pour desktop
+        const textarea = document.createElement('textarea');
+        textarea.value = `${article.title}\n\n${article.description}\n\n${articleUrl}`;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Lien copié dans le presse-papier !');
+      });
+    } else {
+      // Fallback pour navigateurs sans Web Share API
+      const textarea = document.createElement('textarea');
+      textarea.value = `${article.title}\n\n${article.description}\n\n${articleUrl}`;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert('Lien copié dans le presse-papier !');
+    }
+  };
+
+
+
 
     const handleLike = async (articleId: string) => {
       const userId = user?.id
@@ -221,27 +260,35 @@ export default function HomePage() {
                   {/* Title and Heart */}
                   <div className="flex items-start justify-between mb-4">
                     <h2 className="text-white text-2xl font-bold">{article.title || 'Le Bataclan'}</h2>
-                    <button
-                      onClick={() => handleLike(article.id)}
-                      className="ml-4 mt-1"
-                    >
-                      <svg
-                        className={`w-6 h-6 transition-colors duration-300 ${
-                          likedArticles.includes(article.id)
-                            ? 'text-red-500'
-                            : 'text-gray-400 hover:text-red-400'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
+                    <div className="flex gap-x-2 items-center">
+                      <button
+                        onClick={() => handleLike(article.id)}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          className={`w-6 h-6 transition-colors duration-300 ${
+                            likedArticles.includes(article.id)
+                              ? 'text-red-500'
+                              : 'text-gray-400 hover:text-red-400'
+                          }`}
+                          fill="black"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                      </button>
+                      <img
+                        src="/share_spot.svg"
+                        alt="Partager"
+                        className="h-5 w-5 cursor-pointer"
+                        onClick={() => handleShare(article)}
+                      />
+                    </div>
+
                   </div>
                   {/* Genre Tags */}
                   <div className="flex gap-2 mb-4">
