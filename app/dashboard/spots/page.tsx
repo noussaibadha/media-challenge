@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -281,6 +282,15 @@ useEffect(() => {
         <div className="mt-4">
           <p className="text-sm text-gray-500">Aperçu de l’image :</p>
           <img src={previewUrl} alt="Prévisualisation" className="w-60 rounded shadow mt-2" />
+          
+          <Image
+            src={previewUrl}
+            alt="Prévisualisation"
+            width={240}    // Largeur en pixels (ex : 240px pour w-60 de Tailwind)
+            height={180}   // Hauteur à adapter selon le ratio de ton image
+            className="rounded shadow mt-2"
+            style={{ width: 'auto', height: 'auto' }} // Optionnel, pour garder le responsive
+          />
         </div>
       )}
 

@@ -5,6 +5,7 @@ import SplashScreen from '@/components/SplashScreen'
 import Link from "next/link"
 import dynamic from 'next/dynamic'
 import { useDarkMode } from '@/context/DarkModeContext'
+import Image from 'next/image'
 
 // Import dynamique de la carte pour éviter les erreurs SSR
 const MapWithNoSSR = dynamic(() => import('@/components/Map'), {
@@ -31,28 +32,30 @@ type Article = {
   affluence: string;
 };
 
+type User = {
+  id: string;
+  [key: string]: any;
+};
+
 export default function HomePage() {
-  const { darkMode, toggleDarkMode } = useDarkMode()
+  const { darkMode } = useDarkMode() // toggleDarkMode retiré car non utilisé
   const [articles, setArticles] = useState<Article[]>([])
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchTerm, setSearchTerm] = useState('')
-  const [user, setUser] = useState<any | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isConnected, setIsConnected] = useState(false)
   const [likedArticles, setLikedArticles] = useState<string[]>([])
   const [showMap, setShowMap] = useState(false)
   const [selectedArticleOnMap, setSelectedArticleOnMap] = useState<Article | null>(null)
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      const { data: sessionData } = await supabase.auth.getSession()
 
       if (sessionData?.session) {
-        const { data: userData, error: userError } = await supabase.auth.getUser()
-        console.log('User:', userData?.user)
-        setUser(userData?.user)
+        const { data: userData } = await supabase.auth.getUser()
+        setUser(userData?.user as User)
       } else {
-        console.log("🚫 Aucun utilisateur connecté")
         setUser(null)
       }
     }
@@ -128,13 +131,13 @@ export default function HomePage() {
     const fetchLikes = async () => {
       if (!user?.id) return
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('likes')
         .select('article_id')
         .eq('user_id', user.id)
 
       if (data) {
-        const likedIds = data.map((like: any) => like.article_id)
+        const likedIds = data.map((like: { article_id: string }) => like.article_id)
         setLikedArticles(likedIds)
       }
     }
@@ -149,7 +152,7 @@ export default function HomePage() {
         .select('*')
         .eq('status', true)
 
-      setArticles(data || [])
+      setArticles((data as Article[]) || [])
     }
 
     fetchData()
@@ -181,7 +184,7 @@ export default function HomePage() {
     setSearchTerm('')
     setSelectedArticleOnMap(null)
   }
-
+}
   return (
     <>
       {loading && <SplashScreen onFinish={() => setLoading(false)} />}

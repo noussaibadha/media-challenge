@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 export default function Loading() {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -8,10 +10,13 @@ export default function Loading() {
           <div className="w-full h-full rounded-full bg-white"></div>
         </div>
         {/* Logo fixe au centre */}
-        <img
+        <Image
           src="/favicon_spotIn.svg"
           alt="Logo"
+          width={96}  // 24 * 4 (taille en px de w-24)
+          height={96} // 24 * 4
           className="absolute w-24 h-24 object-contain"
+          priority
         />
       </div>
     </div>

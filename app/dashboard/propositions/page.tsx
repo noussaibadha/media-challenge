@@ -2,7 +2,13 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
+type Article = {
+  id: string
+  titre?: string
+  // Ajoute ici les propriétés dont tu as besoin
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,10 +16,8 @@ const supabase = createClient(
 )
 
 export default function PropositionsPage() {
-  const [articles, setArticles] = useState<any[]>([])
-  const [articleEnCours, setArticleEnCours] = useState<any | null>(null)
-
-
+  const [articles, setArticles] = useState<Article[]>([])
+  const [articleEnCours, setArticleEnCours] = useState<Article | null>(null)
   const router = useRouter()
 
 useEffect(() => {

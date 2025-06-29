@@ -12,7 +12,7 @@ const supabase = createClient(
 );
 
 export default function HomePage() {
-  const { darkMode, toggleDarkMode } = useDarkMode();
+  const { darkMode } = useDarkMode();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -27,7 +27,7 @@ export default function HomePage() {
     }
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('newsletter')
         .insert([{ email }]);
 

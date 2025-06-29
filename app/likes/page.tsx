@@ -3,15 +3,26 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useDarkMode } from '@/context/DarkModeContext'
+import Image from 'next/image'
 
+type Article = {
+  id: string
+  title?: string
+  imageUrl?: string
+  [key: string]: any
+}
+type User = {
+  id: string
+  [key: string]: any
+}
 
 const supabase = createClient()
 
 export default function LikesPage() {
-  const [articles, setArticles] = useState<unknown[]>([])
+  const [articles, setArticles] = useState<Article[]>([])
   const [likedIds, setLikedIds] = useState<string[]>([])
-  const [user, setUser] = useState<unknown | null>(null)
-  const { darkMode, toggleDarkMode } = useDarkMode()
+  const [user, setUser] = useState<User | null>(null)
+  const { darkMode } = useDarkMode() // toggleDarkMode retiré car non utilisé
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -26,7 +37,7 @@ export default function LikesPage() {
         .select('article_id')
         .eq('user_id', userId)
 
-      const articleIds = likes?.map(like => like.article_id) || []
+      const articleIds = likes?.map((like: { article_id: string }) => like.article_id) || []
       setLikedIds(articleIds)
 
       const { data: likedArticles } = await supabase
@@ -35,14 +46,14 @@ export default function LikesPage() {
         .in('id', articleIds)
         .eq('status', true)
 
-      setArticles(likedArticles || [])
+      setArticles((likedArticles as Article[]) || [])
     }
 
     fetchLikes()
   }, [])
 
   const handleLike = async (articleId: string) => {
-    const userId = (user as any)?.id
+    const userId = user?.id
     if (!userId) return
 
     const { data: existingLike } = await supabase
@@ -61,23 +72,20 @@ export default function LikesPage() {
         .eq('article_id', articleId)
 
       if (!error) {
-        // Mise à jour immédiate du state local
         setLikedIds(prev => prev.filter(id => id !== articleId))
-        setArticles(prev => prev.filter((article: any) => article.id !== articleId))
+        setArticles(prev => prev.filter(article => article.id !== articleId))
       }
     } else {
-      // Ajouter le like (au cas où tu veux pouvoir ajouter ici aussi)
+      // Ajouter le like
       const { error } = await supabase
         .from('likes')
         .insert({ user_id: userId, article_id: articleId })
 
       if (!error) {
         setLikedIds(prev => [...prev, articleId])
-        // Optionnel : refetch ou ajouter l'article à la liste
       }
     }
   }
-
 
   return (
     <div className={`min-h-screen p-4 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -95,7 +103,13 @@ export default function LikesPage() {
                 {/* Image */}
                 <div className="relative h-40 bg-gray-700">
                   {article.img ? (
-                    <img src={article.img} alt={article.title} className="w-full h-full object-cover" />
+                    <Image
+                      src={article.img}
+                      alt={article.title ?? 'image'}
+                      width={600}
+                      height={400}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className={`flex items-center justify-center h-full ${darkMode ? 'text-white' : 'text-gray-600'}`}>📸 Aucune image</div>
                   )}
