@@ -395,11 +395,6 @@ export default function HomePage() {
                             <div className="text-sm opacity-70">du lieu</div>
                           </div>
                         )}
-                        <button className="absolute top-4 right-4 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </button>
                       </div>
                       {/* Content */}
                       <div className="p-6">
@@ -435,7 +430,6 @@ export default function HomePage() {
                           <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">
                             {article.categorie || 'Rock'}
                           </span>
-                          <span className="bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium">Métal</span>
                         </div>
                         <div className="flex items-start mb-3">
                           <svg
