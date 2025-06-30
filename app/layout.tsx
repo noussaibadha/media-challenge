@@ -5,6 +5,7 @@ import { DarkModeProvider } from '@/context/DarkModeContext'
 export const metadata: Metadata = {
   title: '',
   description: 'application web de référencement des spots pour les fêtes',
+  manifest: '/manifest.json',
   icons: {
     icon: '/favicon_spotIn.svg',
   }
