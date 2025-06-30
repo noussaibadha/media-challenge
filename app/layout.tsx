@@ -18,6 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        {/* Ajoute aussi tes icônes ici si besoin */}
+      </head>
       <body className="bg-gray-50 min-h-screen mb-16 md:mb-0 md:mt-16">
         <DarkModeProvider>
           <ResponsiveNavbar />
