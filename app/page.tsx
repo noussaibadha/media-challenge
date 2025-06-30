@@ -157,11 +157,7 @@ export default function HomePage() {
 
   // Filtrer les articles selon la catégorie sélectionnée et la recherche
   const filteredArticles = articles
-    .filter(article =>
-      selectedCategory === 'Tous' ||
-      article.categorie?.split(',').map(c => c.trim()).includes(selectedCategory)
-    )
-
+    .filter(article => selectedCategory === 'Tous' || article.categorie === selectedCategory)
     .filter(article => {
       const search = searchTerm.toLowerCase()
       return (
@@ -172,22 +168,7 @@ export default function HomePage() {
     })
 
   // Liste des catégories
-  const categories = [
-    'Tous',
-    'Rock',
-    'Rap',
-    'Electro',
-    'Jazz',
-    'Rnb',
-    'Pop',
-    'Reggae',
-    'Techno',
-    'Classique',
-    'Hip-hop',
-    'Metal',
-    'Kpop',
-  ]
-
+  const categories = [ 'Tous', 'Rock', 'Rap', 'Electro', 'Jazz', 'Rnb', 'Pop', 'Reggae', 'Techno', 'Classique', 'Hip-hop', 'Metal', 'Kpop', ]
 
   // Gestion du clic sur un marqueur de la carte
   const handleMarkerClick = (article: Article) => {
@@ -398,10 +379,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Main Content */}
-            <div className="px-4 pb-24 max-w-4xl mx-auto">
-              <div className="space-y-6">
-                {filteredArticles.map((article, index) => (
+          {/* Main Content */}
+          <div className="px-4 pb-24 max-w-4xl mx-auto">
+            <div className="space-y-6">
+              {filteredArticles.map((article, index) => {
+                const isLiked = likedArticles.includes(article.id)
+
+                return (
                   <Link key={article.id} href={`/articles/${article.id}`} className="block">
                     <div className="bg-gray-900/90 rounded-3xl overflow-hidden">
                       {/* Media Section */}
@@ -415,18 +399,26 @@ export default function HomePage() {
                           </div>
                         )}
                       </div>
+
                       {/* Content */}
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <h2 className="text-white text-2xl font-bold">{article.title || 'Le Bataclan'}</h2>
                           <div className="flex gap-x-2 items-center">
-                            <button onClick={() => handleLike(article.id)}>
+                            {/* ❤️ Like button */}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleLike(article.id)
+                              }}
+                            >
                               <svg
-                                className={`w-6 h-6 transition-colors duration-300 ${likedArticles.includes(article.id)
-                                    ? 'text-red-500'
-                                    : 'text-gray-400 hover:text-red-400'
-                                  }`}
-                                fill="black"
+                                className={`w-6 h-6 transition-colors duration-300 ${
+                                  isLiked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+                                }`}
+                                fill={isLiked ? 'currentColor' : 'none'}
+                                stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
                                 <path
@@ -437,19 +429,27 @@ export default function HomePage() {
                                 />
                               </svg>
                             </button>
+
+                            {/* 🔗 Share button */}
                             <img
                               src="/share_spot.svg"
                               alt="Partager"
                               className="h-5 w-5 cursor-pointer"
-                              onClick={() => handleShare(article)}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleShare(article)
+                              }}
                             />
                           </div>
                         </div>
+
                         <div className="flex gap-2 mb-4">
                           <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">
                             {article.categorie || 'Rock'}
                           </span>
                         </div>
+
                         <div className="flex items-start mb-3">
                           <svg
                             className="w-5 h-5 text-red-400 mr-3 mt-0.5 flex-shrink-0"
@@ -460,37 +460,44 @@ export default function HomePage() {
                           </svg>
                           <span className="text-white text-sm">{article.adress || '50 Boulevard Voltaire, Paris'}</span>
                         </div>
+
                         <div className="mb-2">
                           <span className="text-gray-400 text-sm">
                             Affluence prévue: {article.affluence}
                           </span>
                         </div>
+
                         <div className="w-full bg-gray-700 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full bg-gradient-to-r ${article.affluence === 'Faible' ? 'from-orange-300 to-orange-400' :
-                                article.affluence === 'Moyenne' ? 'from-orange-400 to-orange-500' :
-                                  'from-orange-500 to-orange-600'
-                              }`}
+                            className={`h-2 rounded-full bg-gradient-to-r ${
+                              article.affluence === 'Faible'
+                                ? 'from-orange-300 to-orange-400'
+                                : article.affluence === 'Moyenne'
+                                ? 'from-orange-400 to-orange-500'
+                                : 'from-orange-500 to-orange-600'
+                            }`}
                             style={{
                               width:
-                                article.affluence === 'Faible' ? '33%' :
-                                  article.affluence === 'Moyenne' ? '66%' :
-                                    '100%'
+                                article.affluence === 'Faible'
+                                  ? '33%'
+                                  : article.affluence === 'Moyenne'
+                                  ? '66%'
+                                  : '100%',
                             }}
                           ></div>
                         </div>
                       </div>
                     </div>
                   </Link>
-                ))}
-              </div>
-              {filteredArticles.length === 0 && (
-                <p className="text-center text-gray-400 mt-10">Aucun article trouvé pour cette catégorie.</p>
-              )}
+                )
+              })}
             </div>
-          </>
-        )}
-      </div>
-    </>
-  )
+          </div>
+              
+       
+        </>
+      )}
+    </div>
+  </>
+)
 }
