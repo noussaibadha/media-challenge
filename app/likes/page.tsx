@@ -134,17 +134,9 @@ export default function LikesPage() {
                     <span className={`text-sm ${darkMode ? 'text-white' : 'text-gray-700'}`}>{article.adress}</span>
                   </div>
 
-                  {/* Fermeture */}
-                  <div className="flex items-center mb-3">
-                    <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
-                    <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Fermeture : 02:00</span>
-                  </div>
+                  
 
-                  {/* Description rapide */}
-                  <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 bg-yellow-400 rounded-full mr-3"></div>
-                    <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{article.description}</span>
-                  </div>
+                 
 
                   {/* Affluence */}
                   <div className="mb-2">
