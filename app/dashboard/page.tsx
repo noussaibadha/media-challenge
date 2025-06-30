@@ -133,45 +133,60 @@ export default async function DashboardPage() {
         </div>
 
         {/* Actions rapides */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Actions Rapides</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="/dashboard/spots" className="group bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105">
-              <div className="flex items-center space-x-3">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                <div>
-                  <h3 className="font-semibold text-lg">Ajouter un Spot</h3>
-                  <p className="text-indigo-100">Créer un nouveau lieu</p>
-                </div>
-              </div>
-            </a>
+        {/* Actions rapides */}
+<div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Actions Rapides</h2>
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <a href="/dashboard/spots" className="group bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105">
+      <div className="flex items-center space-x-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        <div>
+          <h3 className="font-semibold text-lg">Ajouter un Spot</h3>
+          <p className="text-indigo-100">Créer un nouveau lieu</p>
+        </div>
+      </div>
+    </a>
 
-            <a href="/dashboard/propositions" className="group bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-6 rounded-lg hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105">
-              <div className="flex items-center space-x-3">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <div>
-                  <h3 className="font-semibold text-lg">Gérer Propositions</h3>
-                  <p className="text-yellow-100">Valider les demandes</p>
-                </div>
-              </div>
-            </a>
+    <a href="/dashboard/propositions" className="group bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-6 rounded-lg hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105">
+      <div className="flex items-center space-x-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <div>
+          <h3 className="font-semibold text-lg">Gérer Propositions</h3>
+          <p className="text-yellow-100">Valider les demandes</p>
+        </div>
+      </div>
+    </a>
 
-            <a href="/dashboard/users" className="group bg-gradient-to-r from-green-500 to-teal-600 text-white p-6 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105">
-              <div className="flex items-center space-x-3">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                </svg>
-                <div>
-                  <h3 className="font-semibold text-lg">Gérer Utilisateurs</h3>
-                  <p className="text-green-100">Administration</p>
-                </div>
-              </div>
-            </a>
-          </div>
+    <a href="/dashboard/users" className="group bg-gradient-to-r from-green-500 to-teal-600 text-white p-6 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105">
+      <div className="flex items-center space-x-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+        </svg>
+        <div>
+          <h3 className="font-semibold text-lg">Gérer Utilisateurs</h3>
+          <p className="text-green-100">Administration</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="/" className="group bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-6 rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105">
+      <div className="flex items-center space-x-3">
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9.75L12 4l9 5.75M4.5 10.5v8.25a.75.75 0 00.75.75H9v-6h6v6h3.75a.75.75 0 00.75-.75V10.5" />
+        </svg>
+        <div>
+          <h3 className="font-semibold text-lg">Retour au site</h3>
+          <p className="text-cyan-100">Voir la page publique</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+
         </div>
       </div>
     </div>

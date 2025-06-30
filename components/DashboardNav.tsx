@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
+  HiOutlineHome,
   HiOutlinePlusCircle,
   HiOutlineUserGroup,
   HiOutlineDocumentText,
@@ -26,6 +28,11 @@ export default function DashboardNavbar() {
   }, [])
 
   const navLinks = [
+    {
+      href: '/dashboard',
+      label: 'Accueil',
+      icon: <HiOutlineHome className="text-2xl md:text-lg" />,
+    },
     {
       href: '/dashboard/spots',
       label: 'Ajout Spot',
@@ -51,7 +58,9 @@ export default function DashboardNavbar() {
       {/* Navbar pour desktop */}
       <nav className="hidden md:flex bg-[#F1F1F1] dark:bg-[#242424] shadow-md py-4 px-6 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold text-gray-900 dark:text-white">Dashboard</div>
+          <Link href="/">
+            <Image src="/logo_spotin_blanc.svg" alt="Logo" width={120} height={30} className="h-auto w-auto" />
+          </Link>
           <div className="flex space-x-8">
             {navLinks.map((link) => (
               <Link key={link.label} href={link.href} className={linkClasses}>
