@@ -276,7 +276,7 @@ export default function HomePage() {
 
               {/* Sidebar avec article sélectionné */}
               {selectedArticleOnMap && (
-                <div className="lg:w-80 bg-gray-900/90 rounded-xl p-6">
+                <div className={`lg:w-80 ${darkMode ? 'bg-gray-900/80' : 'bg-gray-100'}  rounded-xl p-6`}>
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="text-white text-xl font-bold">{selectedArticleOnMap.title}</h3>
                     <button
@@ -387,7 +387,7 @@ export default function HomePage() {
 
                 return (
                   <Link key={article.id} href={`/articles/${article.id}`} className="block">
-                    <div className="bg-gray-900/90 rounded-3xl overflow-hidden">
+                    <div className={`${darkMode ? 'bg-gray-900/80' : 'bg-[#F1F1F1]'} rounded-3xl overflow-hidden`}>
                       {/* Media Section */}
                       <div className="relative h-40 bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
                         {article.img ? (
@@ -403,7 +403,10 @@ export default function HomePage() {
                       {/* Content */}
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <h2 className="text-white text-2xl font-bold">{article.title || 'Le Bataclan'}</h2>
+                         <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
+                            {article.title || 'Le Bataclan'}
+                          </h2>
+
                           <div className="flex gap-x-2 items-center">
                             {/* ❤️ Like button */}
                             <button
@@ -458,7 +461,7 @@ export default function HomePage() {
                           >
                             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                           </svg>
-                          <span className="text-white text-sm">{article.adress || '50 Boulevard Voltaire, Paris'}</span>
+                          <span className={`${darkMode ? 'text-[#F1F1F1]' : 'text-[#000000]'} text-sm`}>{article.adress || '50 Boulevard Voltaire, Paris'}</span>
                         </div>
 
                         <div className="mb-2">
